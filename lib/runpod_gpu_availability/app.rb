@@ -66,24 +66,49 @@ module RunpodGpuAvailability
 
       def call(environment)
         request = Rack::Request.new(environment)
-        return not_found unless request.get? && ["/", "/dashboard.html"].include?(request.path)
+        return not_found unless request.get? && dashboard_path?(request.path)
 
         days = Integer(request.params.fetch("days", "7"), exception: false).to_i.clamp(1, 90)
         snapshot, current = @database.current_availabilities(product: @product)
-        body = Dashboard.new(
-          product: @product,
-          snapshot: snapshot,
-          current: current,
-          history: @database.history(product: @product, since: Time.now - (days * 24 * 60 * 60)),
-          region_statuses: @database.region_statuses(product: @product, since: Time.now - (days * 24 * 60 * 60)),
-          snapshot_count: @database.snapshot_count(product: @product),
-          last_error: @runner.last_error,
-          days: days
-        ).render
+        data = dashboard_data(snapshot: snapshot, current: current, days: days)
+        return json(data) if json_request?(request)
+
+        body = Dashboard.new(**data).render
         [200, { "content-type" => "text/html; charset=utf-8" }, [body]]
       end
 
       private
+
+      def dashboard_path?(path)
+        ["/", "/.json", "/dashboard.html", "/dashboard.json", "/index.json"].include?(path)
+      end
+
+      def dashboard_data(snapshot:, current:, days:)
+        since = Time.now - (days * 24 * 60 * 60)
+        {
+          product: @product,
+          snapshot: clean_row(snapshot),
+          current: current.map { |row| clean_row(row) },
+          history: @database.history(product: @product, since: since).map { |row| clean_row(row) },
+          region_statuses: @database.region_statuses(product: @product, since: since).map { |row| clean_row(row) },
+          snapshot_count: @database.snapshot_count(product: @product),
+          last_error: @runner.last_error,
+          days: days
+        }
+      end
+
+      def clean_row(row)
+        row&.each_with_object({}) { |(key, value), result| result[key] = value if key.is_a?(String) }
+      end
+
+      def json_request?(request)
+        request.path.end_with?(".json") || request.params["format"] == "json" ||
+          request.get_header("HTTP_ACCEPT").to_s.include?("application/json")
+      end
+
+      def json(data)
+        [200, { "content-type" => "application/json; charset=utf-8" }, [JSON.generate(data)]]
+      end
 
       def not_found = [404, { "content-type" => "text/plain" }, ["Not found\n"]]
     end

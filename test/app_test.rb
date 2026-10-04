@@ -31,6 +31,14 @@ class AppTest < Minitest::Test
     assert_includes dashboard.body, "US-IL-1"
     assert_includes dashboard.body, "History: last 28 days"
     assert_includes dashboard.body, "Region status timeline"
+
+    json = Rack::MockRequest.new(@app).get("/dashboard.json?days=28")
+    assert_equal 200, json.status
+    assert_equal "application/json; charset=utf-8", json["content-type"]
+    payload = JSON.parse(json.body)
+    assert_equal "SERVERLESS", payload.fetch("product")
+    assert_equal 28, payload.fetch("days")
+    assert_equal "US-IL-1", payload.fetch("current").first.fetch("region_id")
   end
 
   private

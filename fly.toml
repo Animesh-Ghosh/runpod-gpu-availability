@@ -1,4 +1,4 @@
-# Set the app name when running `fly launch --copy-config --no-deploy`.
+app = "animesh-runpod-gpu-availability"
 primary_region = "sin"
 
 [build]
