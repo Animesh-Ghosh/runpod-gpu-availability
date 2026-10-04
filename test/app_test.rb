@@ -27,10 +27,11 @@ class AppTest < Minitest::Test
 
     dashboard = Rack::MockRequest.new(@app).get("/?days=28")
     assert_equal 200, dashboard.status
-    assert_includes dashboard.body, "RTX 4090"
     assert_includes dashboard.body, "US-IL-1"
     assert_includes dashboard.body, "History: last 28 days"
     assert_includes dashboard.body, "Region status timeline"
+    assert_includes dashboard.body, "Current region status"
+    refute_includes dashboard.body, "RTX 4090"
 
     json = Rack::MockRequest.new(@app).get("/dashboard.json?days=28")
     assert_equal 200, json.status
@@ -39,6 +40,7 @@ class AppTest < Minitest::Test
     assert_equal "SERVERLESS", payload.fetch("product")
     assert_equal 28, payload.fetch("days")
     assert_equal "US-IL-1", payload.fetch("current").first.fetch("region_id")
+    assert_equal "US-IL-1", payload.fetch("current_regions").first.fetch("region_id")
   end
 
   private

@@ -89,6 +89,7 @@ module RunpodGpuAvailability
           product: @product,
           snapshot: clean_row(snapshot),
           current: current.map { |row| clean_row(row) },
+          current_regions: @database.current_region_statuses(product: @product).map { |row| clean_row(row) },
           history: @database.history(product: @product, since: since).map { |row| clean_row(row) },
           region_statuses: @database.region_statuses(product: @product, since: since).map { |row| clean_row(row) },
           snapshot_count: @database.snapshot_count(product: @product),
