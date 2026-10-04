@@ -1,5 +1,5 @@
 # Set the app name when running `fly launch --copy-config --no-deploy`.
-primary_region = "bom"
+primary_region = "sin"
 
 [build]
   dockerfile = "Dockerfile"

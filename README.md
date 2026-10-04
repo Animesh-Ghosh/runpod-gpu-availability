@@ -36,7 +36,7 @@ app name into `fly.toml`; this repository intentionally does not hard-code one.
 
 ```sh
 fly launch --copy-config --no-deploy
-fly volumes create availability_data --size 1 --region bom
+fly volumes create availability_data --size 1 --region sin
 fly secrets set RUNPOD_API_KEY=...
 fly deploy
 ```
