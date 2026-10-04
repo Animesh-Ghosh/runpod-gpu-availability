@@ -9,6 +9,9 @@ permissions:
 
 jobs:
   test:
+    concurrency:
+      group: ci-test-${{ github.workflow }}-${{ github.ref }}
+      cancel-in-progress: true
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v5
@@ -21,6 +24,9 @@ jobs:
   image:
     if: github.event_name == 'pull_request'
     needs: test
+    concurrency:
+      group: ci-image-${{ github.workflow }}-${{ github.ref }}
+      cancel-in-progress: true
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v5
@@ -29,6 +35,9 @@ jobs:
   deploy:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     needs: test
+    concurrency:
+      group: production-deploy
+      cancel-in-progress: false
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v5
