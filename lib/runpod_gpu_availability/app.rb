@@ -71,7 +71,7 @@ module RunpodGpuAvailability
         days = Integer(request.params.fetch("days", "7"), exception: false).to_i.clamp(1, 90)
         snapshot, current = @database.current_availabilities(product: @product)
         data = dashboard_data(snapshot: snapshot, current: current, days: days)
-        return json(data) if json_request?(request)
+        return json(json_data(data)) if json_request?(request)
 
         body = Dashboard.new(**data).render
         [200, { "content-type" => "text/html; charset=utf-8" }, [body]]
@@ -100,6 +100,25 @@ module RunpodGpuAvailability
 
       def clean_row(row)
         row&.each_with_object({}) { |(key, value), result| result[key] = value if key.is_a?(String) }
+      end
+
+      def json_data(data)
+        grouped_current = %w[HIGH MEDIUM LOW UNKNOWN].to_h do |availability|
+          [availability.downcase, { regions: [], configurations: [] }]
+        end
+        data.fetch(:current_regions).each do |region|
+          grouped_current.fetch(availability_key(region))[:regions] << region
+        end
+        data.fetch(:current).each do |configuration|
+          grouped_current.fetch(availability_key(configuration))[:configurations] << configuration
+        end
+
+        data.except(:current, :current_regions).merge(current: grouped_current)
+      end
+
+      def availability_key(record)
+        availability = record.fetch("availability", "UNKNOWN").upcase
+        %w[HIGH MEDIUM LOW].include?(availability) ? availability.downcase : "unknown"
       end
 
       def json_request?(request)

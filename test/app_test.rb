@@ -39,8 +39,9 @@ class AppTest < Minitest::Test
     payload = JSON.parse(json.body)
     assert_equal "SERVERLESS", payload.fetch("product")
     assert_equal 28, payload.fetch("days")
-    assert_equal "US-IL-1", payload.fetch("current").first.fetch("region_id")
-    assert_equal "US-IL-1", payload.fetch("current_regions").first.fetch("region_id")
+    high = payload.fetch("current").fetch("high")
+    assert_equal "US-IL-1", high.fetch("configurations").first.fetch("region_id")
+    assert_equal "US-IL-1", high.fetch("regions").first.fetch("region_id")
   end
 
   private
