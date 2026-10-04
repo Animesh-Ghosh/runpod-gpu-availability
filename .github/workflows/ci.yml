@@ -19,8 +19,20 @@ jobs:
       - run: bundle exec rake test
 
   image:
+    if: github.event_name == 'pull_request'
     needs: test
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v5
       - run: docker build --tag runpod-gpu-availability:ci .
+
+  deploy:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: test
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v5
+      - uses: superfly/flyctl-actions/setup-flyctl@master
+      - run: flyctl deploy --remote-only --app animesh-runpod-gpu-availability
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
