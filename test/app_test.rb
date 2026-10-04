@@ -9,7 +9,12 @@ class AppTest < Minitest::Test
     @database = RunpodGpuAvailability::Database.new(path: File.join(@directory, "availability.sqlite3"))
     client = Struct.new(:catalog) { def fetch = catalog }.new(catalog)
     @runner = RunpodGpuAvailability::SnapshotRunner.new(client: client, database: @database, product: "SERVERLESS")
-    @app = RunpodGpuAvailability::App.new(database: @database, runner: @runner, product: "SERVERLESS", snapshot_secret: "secret")
+    @app = RunpodGpuAvailability::App.build(
+      environment: { "RUNPOD_PRODUCT" => "SERVERLESS", "SNAPSHOT_SECRET" => "secret" },
+      database: @database,
+      runner: @runner,
+      logger: Logger.new(File::NULL)
+    )
   end
 
   def teardown
@@ -17,17 +22,15 @@ class AppTest < Minitest::Test
     FileUtils.remove_entry @directory
   end
 
-  def test_dashboard_and_authenticated_manual_snapshot
-    unauthorized = Rack::MockRequest.new(@app).post("/internal/snapshots")
-    assert_equal 404, unauthorized.status
+  def test_dashboard
+    @runner.run
 
-    response = Rack::MockRequest.new(@app).post("/internal/snapshots", "HTTP_AUTHORIZATION" => "Bearer secret")
-    assert_equal 201, response.status
-
-    dashboard = Rack::MockRequest.new(@app).get("/")
+    dashboard = Rack::MockRequest.new(@app).get("/?days=28")
     assert_equal 200, dashboard.status
     assert_includes dashboard.body, "RTX 4090"
     assert_includes dashboard.body, "US-IL-1"
+    assert_includes dashboard.body, "History: last 28 days"
+    assert_includes dashboard.body, "Region status timeline"
   end
 
   private

@@ -13,10 +13,10 @@ region, GPU, serverless pool, VRAM, availability level, and serverless list
 price. Availability is product-specific: Pod stock is not substituted for
 Serverless stock.
 
-The dashboard deliberately runs as **one Fly Machine with one SQLite volume**.
-That gives the in-process scheduler and the web server one writer, which is the
-simple safe SQLite topology. Do not scale this app horizontally without moving
-the scheduler/database design first.
+The dashboard deliberately uses **one always-running Fly Machine with one SQLite
+volume**. Rufus Scheduler captures a snapshot shortly after boot and then every
+hour. This avoids relying on GitHub Actions cron, while keeping one SQLite writer.
+Do not scale this app horizontally without moving the SQLite design first.
 
 ## Local run
 
@@ -26,15 +26,8 @@ RUNPOD_API_KEY=... SNAPSHOT_INTERVAL_SECONDS=60 bundle exec puma -b tcp://127.0.
 open http://127.0.0.1:8080
 ```
 
-`RUNPOD_API_KEY` needs read access to the RunPod catalog. The first snapshot is
-captured immediately after boot; later snapshots default to every 30 minutes.
-
-For a manual, authenticated snapshot:
-
-```sh
-curl -X POST http://127.0.0.1:8080/internal/snapshots \
-  -H "Authorization: Bearer $SNAPSHOT_SECRET"
-```
+`RUNPOD_API_KEY` needs read access to the RunPod REST v2 catalog. The first
+snapshot is captured shortly after boot; later snapshots default to every hour.
 
 ## Fly.io deployment
 
@@ -44,14 +37,14 @@ app name into `fly.toml`; this repository intentionally does not hard-code one.
 ```sh
 fly launch --copy-config --no-deploy
 fly volumes create availability_data --size 1 --region bom
-fly secrets set RUNPOD_API_KEY=... SNAPSHOT_SECRET="$(openssl rand -hex 32)"
+fly secrets set RUNPOD_API_KEY=...
 fly deploy
 ```
 
-The app must keep one Machine running: `auto_stop_machines = "off"` is
-intentional, since an in-process scheduler cannot collect data while stopped.
-SQLite data lives only on the `availability_data` volume. Back it up before
-destroying the Machine or volume.
+The Fly Machine intentionally stays running: its in-process scheduler cannot
+collect while stopped. SQLite data lives only on the `availability_data` volume.
+For this low-cost decision tool, deleting that volume deletes the history; no
+separate backup workflow is configured.
 
 ## Verification
 

@@ -1,0 +1,54 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require "fileutils"
+require "time"
+
+$LOAD_PATH.unshift File.expand_path("../lib", __dir__)
+require "runpod_gpu_availability/database"
+
+path = ARGV.fetch(0, File.expand_path("../tmp/preview.sqlite3", __dir__))
+abort "Refusing to overwrite existing preview database: #{path}" if File.exist?(path)
+
+regions = {
+  "EU-RO-1" => "Romania",
+  "EU-CZ-1" => "Czechia",
+  "US-IL-1" => "Illinois",
+  "US-KS-2" => "Kansas",
+  "US-TX-3" => "Texas",
+  "CA-MTL-1" => "Montreal"
+}.freeze
+patterns = {
+  "EU-RO-1" => %w[HIGH HIGH MEDIUM HIGH LOW HIGH HIGH],
+  "EU-CZ-1" => %w[MEDIUM LOW LOW MEDIUM UNKNOWN LOW MEDIUM],
+  "US-IL-1" => %w[HIGH HIGH HIGH MEDIUM HIGH HIGH HIGH],
+  "US-KS-2" => %w[LOW MEDIUM LOW LOW MEDIUM LOW LOW],
+  "US-TX-3" => %w[MEDIUM HIGH MEDIUM HIGH MEDIUM HIGH MEDIUM],
+  "CA-MTL-1" => %w[UNKNOWN LOW UNKNOWN LOW LOW UNKNOWN LOW]
+}.freeze
+
+database = RunpodGpuAvailability::Database.new(path: path)
+start = Time.now.utc - (7 * 24 * 60 * 60)
+
+168.times do |offset|
+  catalog = {
+    "gpus" => [{
+      "id" => "NVIDIA GeForce RTX 4090",
+      "name" => "RTX 4090",
+      "pool" => "ADA_24",
+      "memory" => 24,
+      "price" => { "serverless" => 0.69 },
+      "dataCenters" => regions.map do |region_id, region_name|
+        {
+          "id" => region_id,
+          "name" => region_name,
+          "availability" => patterns.fetch(region_id).fetch(offset % 7)
+        }
+      end
+    }]
+  }
+  database.record_snapshot!(captured_at: start + (offset * 3600), product: "SERVERLESS", catalog: catalog)
+end
+
+database.close
+puts path

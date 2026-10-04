@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="refresh" content="300">
+    <title>RunPod GPU availability</title>
+    <style>
+      :root { color-scheme: light dark; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+      body { max-width: 1400px; margin: 2rem auto; padding: 0 1rem; }
+      table { border-collapse: collapse; width: 100%; margin: 1rem 0 2rem; font-size: .9rem; }
+      th, td { padding: .55rem; border-bottom: 1px solid #7774; text-align: left; white-space: nowrap; }
+      th { position: sticky; top: 0; background: Canvas; }
+      .HIGH { color: #14833b; font-weight: 700; } .MEDIUM { color: #b06d00; font-weight: 700; }
+      .LOW { color: #b5410e; font-weight: 700; } .UNKNOWN { color: #777; }
+      .muted { opacity: .72; } .warning { color: #b5410e; }
+      .chart-wrap { overflow-x: auto; border: 1px solid #7774; padding: .75rem; }
+      svg { display: block; min-width: 850px; width: 100%; } .region-label { font-size: 13px; fill: currentColor; }
+      .axis-label { font-size: 11px; fill: currentColor; opacity: .72; }
+      .legend { display: flex; gap: 1rem; flex-wrap: wrap; } .swatch { display: inline-block; width: .8rem; height: .8rem; margin-right: .25rem; }
+    </style>
+  </head>
+  <body>
+    <h1>RunPod GPU availability</h1>
+    <p class="<%= snapshot ? "muted" : "warning" %>"><%= h(status_message) %><% if last_error %> <span class="warning">Last fetch error: <%= h(last_error) %></span><% end %></p>
+
+    <h2>History: last <%= days %> days</h2>
+    <p><a href="/?days=7">7 days</a> · <a href="/?days=28">28 days</a> · <a href="/?days=90">90 days</a></p>
+    <h3>Region status timeline</h3>
+    <p class="muted">Each cell is the best availability RunPod advertised for any Serverless GPU configuration in that region at that capture. No cell means no advertised configuration was recorded; it is not proof of zero capacity.</p>
+    <p class="legend"><span><i class="swatch" style="background:#22c55e"></i>High</span><span><i class="swatch" style="background:#f59e0b"></i>Medium</span><span><i class="swatch" style="background:#ef4444"></i>Low</span><span><i class="swatch" style="background:#94a3b8"></i>Unknown</span></p>
+    <%= AvailabilityChart.new(statuses: region_statuses).render %>
+
+    <h3>Configuration history</h3>
+    <% if history.empty? %>
+      <p>Historical data will appear after the second snapshot.</p>
+    <% else %>
+      <p class="muted">Counts are based on snapshots in which RunPod advertised this region/GPU configuration. A missing configuration is not treated as proof of zero stock.</p>
+      <table><thead><tr><th>Region</th><th>GPU</th><th>Pool</th><th>VRAM</th><th>Seen</th><th>High</th><th>Medium</th><th>Low</th><th>Lowest $/GPU-hour</th><th>Last seen</th></tr></thead><tbody>
+        <% history.each do |record| %>
+          <tr><td><%= h(record["region_id"]) %></td><td><%= h(record["gpu_name"]) %></td><td><%= h(record["pool"]) %></td><td><%= h(record["vram_gb"]) %> GB</td><td><%= record["observations"] %></td><td><%= record["high_observations"] %>/<%= record["observations"] %></td><td><%= record["medium_observations"] %>/<%= record["observations"] %></td><td><%= record["low_observations"] %>/<%= record["observations"] %></td><td><%= price(record["lowest_price_usd_per_hour"]) %></td><td><%= h(record["last_seen_at"]) %></td></tr>
+        <% end %>
+      </tbody></table>
+    <% end %>
+
+    <h2>Current snapshot</h2>
+    <% if current.empty? %>
+      <p>No availability rows in the latest snapshot.</p>
+    <% else %>
+      <table><thead><tr><th>Region</th><th>Name</th><th>GPU</th><th>Pool</th><th>VRAM</th><th>Availability</th><th>$/GPU-hour</th></tr></thead><tbody>
+        <% current.each do |record| %>
+          <tr><td><%= h(record["region_id"]) %></td><td><%= h(record["region_name"]) %></td><td><%= h(record["gpu_name"]) %></td><td><%= h(record["pool"]) %></td><td><%= h(record["vram_gb"]) %> GB</td><td class="<%= h(record["availability"]) %>"><%= h(record["availability"]) %></td><td><%= price(record["serverless_price_usd_per_hour"]) %></td></tr>
+        <% end %>
+      </tbody></table>
+    <% end %>
+  </body>
+</html>

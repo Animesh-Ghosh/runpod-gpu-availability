@@ -92,6 +92,34 @@ module RunpodGpuAvailability
       SQL
     end
 
+    def region_statuses(product:, since:)
+      @database.execute(<<~SQL, [product, since.utc.iso8601])
+        SELECT
+          s.captured_at,
+          a.region_id,
+          MAX(a.region_name) AS region_name,
+          CASE MAX(
+            CASE a.availability
+              WHEN 'HIGH' THEN 3
+              WHEN 'MEDIUM' THEN 2
+              WHEN 'LOW' THEN 1
+              ELSE 0
+            END
+          )
+            WHEN 3 THEN 'HIGH'
+            WHEN 2 THEN 'MEDIUM'
+            WHEN 1 THEN 'LOW'
+            ELSE 'UNKNOWN'
+          END AS availability,
+          COUNT(*) AS advertised_configurations
+        FROM gpu_availabilities a
+        JOIN snapshots s ON s.id = a.snapshot_id
+        WHERE s.product = ? AND s.captured_at >= ?
+        GROUP BY s.id, a.region_id
+        ORDER BY s.captured_at, a.region_id
+      SQL
+    end
+
     def snapshot_count(product:)
       @database.get_first_value("SELECT COUNT(*) FROM snapshots WHERE product = ?", [product])
     end
