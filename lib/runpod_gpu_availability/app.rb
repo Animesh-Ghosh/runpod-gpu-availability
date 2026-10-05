@@ -10,28 +10,28 @@ require_relative "health_endpoint"
 require_relative "runtime"
 require_relative "scheduler"
 require_relative "snapshot_runner"
-require_relative "settings"
+require_relative "config"
 
 module RunpodGpuAvailability
   class App
     def self.build(environment: ENV, logger: Logger.new($stdout), database: nil, runner: nil)
-      settings = Settings.new(environment)
-      database ||= Database.new(path: settings.database_path)
+      config = Config.new(environment)
+      database ||= Database.new(path: config.database_path)
       runner ||= SnapshotRunner.new(
-        client: CatalogClient.new(api_key: settings.api_key, product: settings.product),
+        client: CatalogClient.new(api_key: config.api_key, product: config.product),
         database: database,
-        product: settings.product
+        product: config.product
       )
       scheduler = Scheduler.new(
         runner: runner,
-        interval_seconds: settings.snapshot_interval_seconds,
+        interval_seconds: config.snapshot_interval_seconds,
         logger: logger
       ).tap(&:start)
 
-      Runtime.new(app: rack_app(database: database, runner: runner, settings: settings), scheduler: scheduler)
+      Runtime.new(app: rack_app(database: database, runner: runner, config: config), scheduler: scheduler)
     end
 
-    def self.rack_app(database:, runner:, settings:)
+    def self.rack_app(database:, runner:, config:)
       Rack::Builder.new do
         map "/healthz" do
           run HealthEndpoint.new(runner: runner)
@@ -41,8 +41,8 @@ module RunpodGpuAvailability
           run DashboardEndpoint.new(
             database: database,
             runner: runner,
-            product: settings.product,
-            snapshot_cadence: settings.snapshot_cadence
+            product: config.product,
+            snapshot_cadence: config.snapshot_cadence
           )
         end
       end.to_app

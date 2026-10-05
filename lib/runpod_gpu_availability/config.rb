@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module RunpodGpuAvailability
-  class Settings
+  class Config
     DEFAULT_SNAPSHOT_INTERVAL_SECONDS = 3_600
 
     attr_reader :api_key, :database_path, :product, :snapshot_interval_seconds
@@ -14,7 +14,6 @@ module RunpodGpuAvailability
         environment.fetch("SNAPSHOT_INTERVAL_SECONDS", DEFAULT_SNAPSHOT_INTERVAL_SECONDS.to_s)
       )
       raise ArgumentError, "SNAPSHOT_INTERVAL_SECONDS must be positive" unless @snapshot_interval_seconds.positive?
-
     end
 
     def snapshot_cadence

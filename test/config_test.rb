@@ -2,21 +2,21 @@
 
 require_relative "test_helper"
 
-class SettingsTest < Minitest::Test
+class ConfigTest < Minitest::Test
   def test_reads_environment_once_and_formats_snapshot_cadence
-    settings = RunpodGpuAvailability::Settings.new(
+    config = RunpodGpuAvailability::Config.new(
       "RUNPOD_PRODUCT" => "SERVERLESS",
       "SNAPSHOT_INTERVAL_SECONDS" => "1800"
     )
 
-    assert_equal "SERVERLESS", settings.product
-    assert_equal 1_800, settings.snapshot_interval_seconds
-    assert_equal "30 minutes", settings.snapshot_cadence
+    assert_equal "SERVERLESS", config.product
+    assert_equal 1_800, config.snapshot_interval_seconds
+    assert_equal "30 minutes", config.snapshot_cadence
   end
 
   def test_rejects_a_non_positive_snapshot_interval
     assert_raises(ArgumentError) do
-      RunpodGpuAvailability::Settings.new("SNAPSHOT_INTERVAL_SECONDS" => "0")
+      RunpodGpuAvailability::Config.new("SNAPSHOT_INTERVAL_SECONDS" => "0")
     end
   end
 end
