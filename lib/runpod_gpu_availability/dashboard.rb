@@ -20,9 +20,7 @@ module RunpodGpuAvailability
       @snapshot_cadence = snapshot_cadence
     end
 
-    def render
-      ERB.new(File.read(TEMPLATE_PATH), trim_mode: "-").result(binding)
-    end
+    def render = ERB.new(File.read(TEMPLATE_PATH), trim_mode: "-").result(binding)
 
     private
 

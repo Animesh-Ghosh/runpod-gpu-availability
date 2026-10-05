@@ -82,12 +82,8 @@ module RunpodGpuAvailability
         request.get_header("HTTP_ACCEPT").to_s.include?("application/json")
     end
 
-    def json(data)
-      [200, { "content-type" => "application/json; charset=utf-8" }, [JSON.generate(data)]]
-    end
+    def json(data) = [200, { "content-type" => "application/json; charset=utf-8" }, [JSON.generate(data)]]
 
-    def not_found
-      [404, { "content-type" => "text/plain" }, ["Not found\n"]]
-    end
+    def not_found = [404, { "content-type" => "text/plain" }, ["Not found\n"]]
   end
 end

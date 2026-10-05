@@ -15,7 +15,7 @@ require_relative "config"
 module RunpodGpuAvailability
   class App
     def self.build(environment: ENV)
-      config = Config.new(environment)
+      config = Config.load(environment)
       database = Database.new(path: config.database_path)
       runner = SnapshotRunner.new(
         client: CatalogClient.new(api_key: config.api_key),

@@ -151,9 +151,7 @@ module RunpodGpuAvailability
       @database.get_first_value("SELECT COUNT(*) FROM snapshots WHERE product = ?", [product])
     end
 
-    def close
-      @database.close
-    end
+    def close = @database.close
 
     private
 

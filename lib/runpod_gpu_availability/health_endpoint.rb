@@ -17,8 +17,6 @@ module RunpodGpuAvailability
 
     private
 
-    def not_found
-      [404, { "content-type" => "text/plain" }, ["Not found\n"]]
-    end
+    def not_found = [404, { "content-type" => "text/plain" }, ["Not found\n"]]
   end
 end

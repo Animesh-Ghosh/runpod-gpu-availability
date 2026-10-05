@@ -7,9 +7,7 @@ module RunpodGpuAvailability
       @scheduler = scheduler
     end
 
-    def call(environment)
-      @app.call(environment)
-    end
+    def call(environment) = @app.call(environment)
 
   end
 end
