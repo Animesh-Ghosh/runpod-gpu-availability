@@ -34,8 +34,10 @@ class AppTest < Minitest::Test
     assert_includes dashboard.body, 'Region status timeline'
     assert_includes dashboard.body, 'Current region status'
     assert_includes dashboard.body, 'Snapshots every 30 minutes.'
-    assert_includes dashboard.body, 'Lowest listed $/hour'
+    assert_includes dashboard.body, 'Last observed $/hour'
+    assert_includes dashboard.body, 'Observed price range'
     assert_includes dashboard.body, '$1.10'
+    assert_includes dashboard.body, '$1.10 — $1.10'
     refute_includes dashboard.body, 'RTX 4090'
     refute_includes dashboard.body, 'US Illinois 1'
 
@@ -48,7 +50,9 @@ class AppTest < Minitest::Test
     high = payload.fetch('current').fetch('high')
     assert_equal 'US-IL-1', high.fetch('configurations').first.fetch('region_id')
     assert_equal 'US-IL-1', high.fetch('regions').first.fetch('region_id')
-    assert_equal 1.1, high.fetch('regions').first.fetch('lowest_price_usd_per_hour')
+    assert_equal 1.1, high.fetch('regions').first.fetch('last_observed_price_usd_per_hour')
+    assert_equal 1.1, high.fetch('regions').first.fetch('lowest_observed_price_usd_per_hour')
+    assert_equal 1.1, high.fetch('regions').first.fetch('highest_observed_price_usd_per_hour')
     refute high.fetch('configurations').first.key?('region_name')
     refute high.fetch('regions').first.key?('region_name')
   end

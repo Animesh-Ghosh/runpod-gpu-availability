@@ -89,7 +89,7 @@ module RunpodGpuAvailability
             ELSE 'UNKNOWN'
           END AS availability,
           COUNT(*) AS advertised_configurations,
-          MIN(serverless_price_usd_per_hour) AS lowest_price_usd_per_hour
+          MIN(serverless_price_usd_per_hour) AS last_observed_price_usd_per_hour
         FROM gpu_availabilities
         WHERE snapshot_id = ?
         GROUP BY region_id
@@ -118,6 +118,19 @@ module RunpodGpuAvailability
         GROUP BY a.region_id, a.gpu_id
         ORDER BY high_observations DESC, medium_observations DESC,
           low_observations DESC, lowest_price_usd_per_hour, a.region_id, a.gpu_name
+      SQL
+    end
+
+    def region_price_ranges(product:, since:)
+      @database.execute(<<~SQL, [product, since.utc.iso8601])
+        SELECT
+          a.region_id,
+          MIN(a.serverless_price_usd_per_hour) AS lowest_observed_price_usd_per_hour,
+          MAX(a.serverless_price_usd_per_hour) AS highest_observed_price_usd_per_hour
+        FROM gpu_availabilities a
+        JOIN snapshots s ON s.id = a.snapshot_id
+        WHERE s.product = ? AND s.captured_at >= ?
+        GROUP BY a.region_id
       SQL
     end
 

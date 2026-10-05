@@ -44,5 +44,13 @@ module RunpodGpuAvailability
     def price(value)
       value ? format('$%.2f', value) : '—'
     end
+
+    def price_range(record)
+      lowest = record['lowest_observed_price_usd_per_hour']
+      highest = record['highest_observed_price_usd_per_hour']
+      return '—' unless lowest && highest
+
+      "#{price(lowest)} — #{price(highest)}"
+    end
   end
 end
