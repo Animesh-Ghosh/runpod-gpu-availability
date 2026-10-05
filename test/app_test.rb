@@ -8,9 +8,8 @@ class AppTest < Minitest::Test
     @directory = Dir.mktmpdir
     @database = RunpodGpuAvailability::Database.new(path: File.join(@directory, "availability.sqlite3"))
     client = Struct.new(:catalog) { def fetch = catalog }.new(catalog)
-    @runner = RunpodGpuAvailability::SnapshotRunner.new(client: client, database: @database, product: "SERVERLESS")
+    @runner = RunpodGpuAvailability::SnapshotRunner.new(client: client, database: @database)
     config = RunpodGpuAvailability::Config.new(
-      "RUNPOD_PRODUCT" => "SERVERLESS",
       "SNAPSHOT_INTERVAL_SECONDS" => "1800"
     )
     @app = RunpodGpuAvailability::App.rack_app(
@@ -49,6 +48,11 @@ class AppTest < Minitest::Test
     assert_equal "US-IL-1", high.fetch("regions").first.fetch("region_id")
     refute high.fetch("configurations").first.key?("region_name")
     refute high.fetch("regions").first.key?("region_name")
+  end
+
+  def test_exposes_only_canonical_dashboard_routes
+    assert_equal 404, Rack::MockRequest.new(@app).get("/.json").status
+    assert_equal 404, Rack::MockRequest.new(@app).get("/index.json").status
   end
 
   private

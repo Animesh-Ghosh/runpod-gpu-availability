@@ -7,15 +7,14 @@ require_relative "dashboard"
 
 module RunpodGpuAvailability
   class DashboardEndpoint
-    DASHBOARD_PATHS = ["/", "/.json", "/dashboard.html", "/dashboard.json", "/index.json"].freeze
+    DASHBOARD_PATHS = ["/", "/dashboard.json"].freeze
     AVAILABILITY_GROUPS = %w[HIGH MEDIUM LOW UNKNOWN].freeze
 
-    def initialize(database:, runner:, product:, snapshot_cadence:, clock: Time)
+    def initialize(database:, runner:, product:, snapshot_cadence:)
       @database = database
       @runner = runner
       @product = product
       @snapshot_cadence = snapshot_cadence
-      @clock = clock
     end
 
     def call(environment)
@@ -36,7 +35,7 @@ module RunpodGpuAvailability
     end
 
     def dashboard_data(days:)
-      since = @clock.now - (days * 24 * 60 * 60)
+      since = Time.now - (days * 24 * 60 * 60)
       snapshot, current = @database.current_availabilities(product: @product)
       {
         product: @product,

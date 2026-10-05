@@ -46,11 +46,15 @@ class DatabaseTest < Minitest::Test
       legacy_database.close
 
       database = RunpodGpuAvailability::Database.new(path: path)
-      columns = database.columns_for("gpu_availabilities")
+      database.close
+      database = nil
+      inspection_database = SQLite3::Database.new(path)
+      columns = inspection_database.table_info("gpu_availabilities").map { |column| column.fetch("name") }
 
       refute_includes columns, "region_name"
     ensure
       database&.close
+      inspection_database&.close
     end
   end
 

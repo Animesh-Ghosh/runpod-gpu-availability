@@ -18,9 +18,8 @@ module RunpodGpuAvailability
       config = Config.new(environment)
       database = Database.new(path: config.database_path)
       runner = SnapshotRunner.new(
-        client: CatalogClient.new(api_key: config.api_key, product: config.product),
-        database: database,
-        product: config.product
+        client: CatalogClient.new(api_key: config.api_key),
+        database: database
       )
       scheduler = Scheduler.new(
         runner: runner,
@@ -41,7 +40,7 @@ module RunpodGpuAvailability
           run DashboardEndpoint.new(
             database: database,
             runner: runner,
-            product: config.product,
+            product: CatalogClient::PRODUCT,
             snapshot_cadence: config.snapshot_cadence
           )
         end

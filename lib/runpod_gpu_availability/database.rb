@@ -151,10 +151,6 @@ module RunpodGpuAvailability
       @database.get_first_value("SELECT COUNT(*) FROM snapshots WHERE product = ?", [product])
     end
 
-    def columns_for(table_name)
-      @database.table_info(table_name).map { |column| column.fetch("name") }
-    end
-
     def close
       @database.close
     end
@@ -196,6 +192,10 @@ module RunpodGpuAvailability
       return unless columns_for("gpu_availabilities").include?("region_name")
 
       @database.execute("ALTER TABLE gpu_availabilities DROP COLUMN region_name")
+    end
+
+    def columns_for(table_name)
+      @database.table_info(table_name).map { |column| column.fetch("name") }
     end
   end
 end

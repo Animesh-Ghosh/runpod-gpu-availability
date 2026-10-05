@@ -1,23 +1,19 @@
 # frozen_string_literal: true
 
-require "time"
-
 module RunpodGpuAvailability
   class SnapshotRunner
     attr_reader :last_error
 
-    def initialize(client:, database:, product:, clock: Time)
+    def initialize(client:, database:)
       @client = client
       @database = database
-      @product = product
-      @clock = clock
       @last_error = nil
     end
 
     def run
       snapshot_id = @database.record_snapshot!(
-        captured_at: @clock.now,
-        product: @product,
+        captured_at: Time.now,
+        product: CatalogClient::PRODUCT,
         catalog: @client.fetch
       )
       @last_error = nil

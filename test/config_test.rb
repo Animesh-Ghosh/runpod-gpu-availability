@@ -5,11 +5,9 @@ require_relative "test_helper"
 class ConfigTest < Minitest::Test
   def test_reads_environment_once_and_formats_snapshot_cadence
     config = RunpodGpuAvailability::Config.new(
-      "RUNPOD_PRODUCT" => "SERVERLESS",
       "SNAPSHOT_INTERVAL_SECONDS" => "1800"
     )
 
-    assert_equal "SERVERLESS", config.product
     assert_equal 1_800, config.snapshot_interval_seconds
     assert_equal "30 minutes", config.snapshot_cadence
   end
