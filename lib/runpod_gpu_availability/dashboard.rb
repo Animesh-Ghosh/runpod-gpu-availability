@@ -40,5 +40,9 @@ module RunpodGpuAvailability
     def h(value)
       CGI.escapeHTML(value.to_s)
     end
+
+    def price(value)
+      value ? format('$%.2f', value) : '—'
+    end
   end
 end

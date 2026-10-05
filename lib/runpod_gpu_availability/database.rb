@@ -88,7 +88,8 @@ module RunpodGpuAvailability
             WHEN 1 THEN 'LOW'
             ELSE 'UNKNOWN'
           END AS availability,
-          COUNT(*) AS advertised_configurations
+          COUNT(*) AS advertised_configurations,
+          MIN(serverless_price_usd_per_hour) AS lowest_price_usd_per_hour
         FROM gpu_availabilities
         WHERE snapshot_id = ?
         GROUP BY region_id
