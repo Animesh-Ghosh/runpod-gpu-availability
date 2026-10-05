@@ -2,8 +2,6 @@
 
 module RunpodGpuAvailability
   class Runtime
-    attr_reader :scheduler
-
     def initialize(app:, scheduler:)
       @app = app
       @scheduler = scheduler
@@ -13,8 +11,5 @@ module RunpodGpuAvailability
       @app.call(environment)
     end
 
-    def close
-      @scheduler.shutdown(:wait)
-    end
   end
 end

@@ -10,7 +10,7 @@ class SchedulerTest < Minitest::Test
     end
   end
 
-  def test_schedules_non_overlapping_captures_once
+  def test_schedules_non_overlapping_captures
     runner = Struct.new(:last_error) do
       def run = 42
     end.new
@@ -23,7 +23,6 @@ class SchedulerTest < Minitest::Test
     )
 
     assert_equal :scheduled_job, service.start
-    assert_same :scheduled_job, service.start
     assert_equal 1, scheduler.calls.length
     interval, options, callback = scheduler.calls.first
     assert_equal 3_600, interval

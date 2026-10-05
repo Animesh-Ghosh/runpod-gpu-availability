@@ -12,11 +12,7 @@ module RunpodGpuAvailability
     end
 
     def start
-      @job ||= @scheduler.every(@interval_seconds, first_in: 5, overlap: false) { capture }
-    end
-
-    def shutdown(wait = :wait)
-      @scheduler.shutdown(wait)
+      @scheduler.every(@interval_seconds, first_in: 5, overlap: false) { capture }
     end
 
     private
