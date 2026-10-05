@@ -6,8 +6,29 @@ on:
 
 permissions:
   contents: read
+  pull-requests: read
 
 jobs:
+  changes:
+    runs-on: ubuntu-24.04
+    outputs:
+      runtime: ${{ steps.filter.outputs.runtime }}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            runtime:
+              - 'Dockerfile'
+              - '.dockerignore'
+              - 'Gemfile'
+              - 'Gemfile.lock'
+              - 'config.ru'
+              - 'fly.toml'
+              - 'lib/**'
+              - 'views/**'
+
   test:
     concurrency:
       group: ci-test-${{ github.workflow }}-${{ github.ref }}
@@ -36,8 +57,8 @@ jobs:
       - run: bundle exec rubocop
 
   image:
-    if: github.event_name == 'pull_request'
-    needs: test
+    if: github.event_name == 'pull_request' && needs.changes.outputs.runtime == 'true'
+    needs: [test, changes]
     concurrency:
       group: ci-image-${{ github.workflow }}-${{ github.ref }}
       cancel-in-progress: true
@@ -47,8 +68,8 @@ jobs:
       - run: docker build --tag runpod-gpu-availability:ci .
 
   deploy:
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    needs: test
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && needs.changes.outputs.runtime == 'true'
+    needs: [test, changes]
     concurrency:
       group: production-deploy
       cancel-in-progress: false

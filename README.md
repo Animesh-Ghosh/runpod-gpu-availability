@@ -5,6 +5,10 @@ availability by region and serves the latest snapshot plus a seven-day history.
 It is intended to answer a practical question: which RunPod region/pool has
 repeatedly had capacity for a Reel Translator endpoint?
 
+## Live dashboard
+
+[![RunPod GPU availability dashboard](docs/dashboard.png)](https://animesh-runpod-gpu-availability.fly.dev/)
+
 ## What it records
 
 Every snapshot calls RunPod's documented catalog endpoint with

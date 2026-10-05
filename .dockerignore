@@ -1,5 +1,14 @@
 .git
+.github
 .bundle
-tmp
 data
+docs
 test
+tmp
+vendor
+README.md
+Rakefile
+bin
+.rubocop.yml
+.tool-versions
+fly.toml
