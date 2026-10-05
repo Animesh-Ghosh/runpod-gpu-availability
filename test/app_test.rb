@@ -8,14 +8,14 @@ class AppTest < Minitest::Test
     @directory = Dir.mktmpdir
     @database = RunpodGpuAvailability::Database.new(path: File.join(@directory, "availability.sqlite3"))
     client = Struct.new(:catalog) { def fetch = catalog }.new(catalog)
-    @runner = RunpodGpuAvailability::SnapshotRunner.new(client: client, database: @database)
+    @runner = RunpodGpuAvailability::SnapshotRunner.new(client:, database: @database)
     config = RunpodGpuAvailability::Config.new(
       "SNAPSHOT_INTERVAL_SECONDS" => "1800"
     )
     @app = RunpodGpuAvailability::App.rack_app(
       database: @database,
       runner: @runner,
-      config: config
+      config:
     )
   end
 

@@ -45,7 +45,7 @@ class DatabaseTest < Minitest::Test
       SQL
       legacy_database.close
 
-      database = RunpodGpuAvailability::Database.new(path: path)
+      database = RunpodGpuAvailability::Database.new(path:)
       database.close
       database = nil
       inspection_database = SQLite3::Database.new(path)

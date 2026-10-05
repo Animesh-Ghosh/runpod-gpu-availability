@@ -19,27 +19,27 @@ module RunpodGpuAvailability
       database = Database.new(path: config.database_path)
       runner = SnapshotRunner.new(
         client: CatalogClient.new(api_key: config.api_key),
-        database: database
+        database:
       )
       scheduler = Scheduler.new(
-        runner: runner,
+        runner:,
         interval_seconds: config.snapshot_interval_seconds,
         logger: Logger.new($stdout)
       ).tap(&:start)
 
-      Runtime.new(app: rack_app(database: database, runner: runner, config: config), scheduler: scheduler)
+      Runtime.new(app: rack_app(database:, runner:, config:), scheduler:)
     end
 
     def self.rack_app(database:, runner:, config:)
       Rack::Builder.new do
         map "/healthz" do
-          run HealthEndpoint.new(runner: runner)
+          run HealthEndpoint.new(runner:)
         end
 
         map "/" do
           run DashboardEndpoint.new(
-            database: database,
-            runner: runner,
+            database:,
+            runner:,
             product: CatalogClient::PRODUCT,
             snapshot_cadence: config.snapshot_cadence
           )

@@ -46,7 +46,7 @@ module RunpodGpuAvailability
         region_statuses: @database.region_statuses(product: @product, since: since).map { |row| clean_row(row) },
         snapshot_count: @database.snapshot_count(product: @product),
         last_error: @runner.last_error,
-        days: days
+        days:
       }
     end
 

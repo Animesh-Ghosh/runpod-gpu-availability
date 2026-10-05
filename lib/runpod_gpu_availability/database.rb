@@ -54,7 +54,7 @@ module RunpodGpuAvailability
     end
 
     def current_availabilities(product:)
-      snapshot = latest_snapshot(product: product)
+      snapshot = latest_snapshot(product:)
       return [nil, []] unless snapshot
 
       records = @database.execute(<<~SQL, [snapshot["id"]])
@@ -69,7 +69,7 @@ module RunpodGpuAvailability
     end
 
     def current_region_statuses(product:)
-      snapshot = latest_snapshot(product: product)
+      snapshot = latest_snapshot(product:)
       return [] unless snapshot
 
       @database.execute(<<~SQL, [snapshot["id"]])

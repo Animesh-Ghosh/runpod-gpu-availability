@@ -16,10 +16,10 @@ class SchedulerTest < Minitest::Test
     end.new
     scheduler = FakeScheduler.new([])
     service = RunpodGpuAvailability::Scheduler.new(
-      runner: runner,
+      runner:,
       interval_seconds: 3_600,
       logger: Logger.new(File::NULL),
-      scheduler: scheduler
+      scheduler:
     )
 
     assert_equal :scheduled_job, service.start
