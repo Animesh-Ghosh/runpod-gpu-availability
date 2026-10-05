@@ -1,13 +1,13 @@
 # frozen_string_literal: true
 
-require "json"
-require "rack"
+require 'json'
+require 'rack'
 
-require_relative "dashboard"
+require_relative 'dashboard'
 
 module RunpodGpuAvailability
   class DashboardEndpoint
-    DASHBOARD_PATHS = ["/", "/dashboard.json"].freeze
+    DASHBOARD_PATHS = ['/', '/dashboard.json'].freeze
     AVAILABILITY_GROUPS = %w[HIGH MEDIUM LOW UNKNOWN].freeze
 
     def initialize(database:, runner:, product:, snapshot_cadence:)
@@ -25,13 +25,13 @@ module RunpodGpuAvailability
       return json(json_data(data)) if json_request?(request)
 
       body = Dashboard.new(**html_data(data), snapshot_cadence: @snapshot_cadence).render
-      [200, { "content-type" => "text/html; charset=utf-8" }, [body]]
+      [200, { 'content-type' => 'text/html; charset=utf-8' }, [body]]
     end
 
     private
 
     def requested_days(request)
-      Integer(request.params.fetch("days", "7"), exception: false).to_i.clamp(1, 90)
+      Integer(request.params.fetch('days', '7'), exception: false).to_i.clamp(1, 90)
     end
 
     def dashboard_data(days:)
@@ -73,17 +73,17 @@ module RunpodGpuAvailability
     end
 
     def availability_key(record)
-      availability = record.fetch("availability", "UNKNOWN").upcase
-      AVAILABILITY_GROUPS.include?(availability) ? availability.downcase : "unknown"
+      availability = record.fetch('availability', 'UNKNOWN').upcase
+      AVAILABILITY_GROUPS.include?(availability) ? availability.downcase : 'unknown'
     end
 
     def json_request?(request)
-      request.path.end_with?(".json") || request.params["format"] == "json" ||
-        request.get_header("HTTP_ACCEPT").to_s.include?("application/json")
+      request.path.end_with?('.json') || request.params['format'] == 'json' ||
+        request.get_header('HTTP_ACCEPT').to_s.include?('application/json')
     end
 
-    def json(data) = [200, { "content-type" => "application/json; charset=utf-8" }, [JSON.generate(data)]]
+    def json(data) = [200, { 'content-type' => 'application/json; charset=utf-8' }, [JSON.generate(data)]]
 
-    def not_found = [404, { "content-type" => "text/plain" }, ["Not found\n"]]
+    def not_found = [404, { 'content-type' => 'text/plain' }, ["Not found\n"]]
   end
 end

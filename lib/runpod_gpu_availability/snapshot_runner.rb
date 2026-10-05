@@ -18,8 +18,8 @@ module RunpodGpuAvailability
       )
       @last_error = nil
       snapshot_id
-    rescue CatalogClient::Error => error
-      @last_error = error.message
+    rescue CatalogClient::Error => e
+      @last_error = e.message
       nil
     end
   end

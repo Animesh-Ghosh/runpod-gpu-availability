@@ -1,16 +1,17 @@
 # frozen_string_literal: true
 
-require "cgi/escape"
-require "erb"
-require "time"
+require 'cgi/escape'
+require 'erb'
+require 'time'
 
-require_relative "availability_chart"
+require_relative 'availability_chart'
 
 module RunpodGpuAvailability
   class Dashboard
-    TEMPLATE_PATH = File.expand_path("../../views/dashboard.html.erb", __dir__)
+    TEMPLATE_PATH = File.expand_path('../../views/dashboard.html.erb', __dir__)
 
-    def initialize(snapshot:, current_regions:, region_statuses:, snapshot_count:, last_error:, days:, snapshot_cadence:)
+    def initialize(snapshot:, current_regions:, region_statuses:, snapshot_count:, last_error:, days:,
+                   snapshot_cadence:)
       @snapshot = snapshot
       @current_regions = current_regions
       @region_statuses = region_statuses
@@ -20,18 +21,18 @@ module RunpodGpuAvailability
       @snapshot_cadence = snapshot_cadence
     end
 
-    def render = ERB.new(File.read(TEMPLATE_PATH), trim_mode: "-").result(binding)
+    def render = ERB.new(File.read(TEMPLATE_PATH), trim_mode: '-').result(binding)
 
     private
 
     attr_reader :snapshot, :current_regions, :region_statuses, :snapshot_count, :last_error, :days, :snapshot_cadence
 
     def captured_at
-      Time.parse(snapshot.fetch("captured_at")).utc.iso8601
+      Time.parse(snapshot.fetch('captured_at')).utc.iso8601
     end
 
     def status_message
-      return "No successful snapshot yet." unless snapshot
+      return 'No successful snapshot yet.' unless snapshot
 
       "Captured #{captured_at} · #{snapshot_count} snapshots retained."
     end
@@ -39,6 +40,5 @@ module RunpodGpuAvailability
     def h(value)
       CGI.escapeHTML(value.to_s)
     end
-
   end
 end

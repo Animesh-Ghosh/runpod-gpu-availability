@@ -8,6 +8,5 @@ module RunpodGpuAvailability
     end
 
     def call(environment) = @app.call(environment)
-
   end
 end

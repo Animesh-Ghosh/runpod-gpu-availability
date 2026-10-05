@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-require "fileutils"
-require "sqlite3"
+require 'fileutils'
+require 'sqlite3'
 
 module RunpodGpuAvailability
   class Database
@@ -16,22 +16,22 @@ module RunpodGpuAvailability
     def record_snapshot!(captured_at:, product:, catalog:)
       @database.transaction do
         @database.execute(
-          "INSERT INTO snapshots (captured_at, product) VALUES (?, ?)",
+          'INSERT INTO snapshots (captured_at, product) VALUES (?, ?)',
           [captured_at.utc.iso8601, product]
         )
         snapshot_id = @database.last_insert_row_id
 
-        Array(catalog.fetch("gpus")).each do |gpu|
-          Array(gpu["dataCenters"]).each do |data_center|
+        Array(catalog.fetch('gpus')).each do |gpu|
+          Array(gpu['dataCenters']).each do |data_center|
             parameters = [
               snapshot_id,
-              data_center.fetch("id"),
-              gpu.fetch("id"),
-              gpu.fetch("name"),
-              gpu["pool"],
-              gpu["memory"],
-              data_center["availability"] || gpu["availability"] || "UNKNOWN",
-              gpu.dig("price", "serverless")
+              data_center.fetch('id'),
+              gpu.fetch('id'),
+              gpu.fetch('name'),
+              gpu['pool'],
+              gpu['memory'],
+              data_center['availability'] || gpu['availability'] || 'UNKNOWN',
+              gpu.dig('price', 'serverless')
             ]
             @database.execute(<<~SQL, parameters)
               INSERT INTO gpu_availabilities (
@@ -48,7 +48,7 @@ module RunpodGpuAvailability
 
     def latest_snapshot(product:)
       @database.get_first_row(
-        "SELECT * FROM snapshots WHERE product = ? ORDER BY captured_at DESC LIMIT 1",
+        'SELECT * FROM snapshots WHERE product = ? ORDER BY captured_at DESC LIMIT 1',
         [product]
       )
     end
@@ -57,7 +57,7 @@ module RunpodGpuAvailability
       snapshot = latest_snapshot(product:)
       return [nil, []] unless snapshot
 
-      records = @database.execute(<<~SQL, [snapshot["id"]])
+      records = @database.execute(<<~SQL, [snapshot['id']])
         SELECT *
         FROM gpu_availabilities
         WHERE snapshot_id = ?
@@ -72,7 +72,7 @@ module RunpodGpuAvailability
       snapshot = latest_snapshot(product:)
       return [] unless snapshot
 
-      @database.execute(<<~SQL, [snapshot["id"]])
+      @database.execute(<<~SQL, [snapshot['id']])
         SELECT
           region_id,
           CASE MAX(
@@ -148,7 +148,7 @@ module RunpodGpuAvailability
     end
 
     def snapshot_count(product:)
-      @database.get_first_value("SELECT COUNT(*) FROM snapshots WHERE product = ?", [product])
+      @database.get_first_value('SELECT COUNT(*) FROM snapshots WHERE product = ?', [product])
     end
 
     def close = @database.close
@@ -187,13 +187,13 @@ module RunpodGpuAvailability
     end
 
     def remove_legacy_region_name!
-      return unless columns_for("gpu_availabilities").include?("region_name")
+      return unless columns_for('gpu_availabilities').include?('region_name')
 
-      @database.execute("ALTER TABLE gpu_availabilities DROP COLUMN region_name")
+      @database.execute('ALTER TABLE gpu_availabilities DROP COLUMN region_name')
     end
 
     def columns_for(table_name)
-      @database.table_info(table_name).map { |column| column.fetch("name") }
+      @database.table_info(table_name).map { |column| column.fetch('name') }
     end
   end
 end

@@ -1,16 +1,16 @@
 # frozen_string_literal: true
 
-require "logger"
-require "rack"
+require 'logger'
+require 'rack'
 
-require_relative "catalog_client"
-require_relative "database"
-require_relative "dashboard_endpoint"
-require_relative "health_endpoint"
-require_relative "runtime"
-require_relative "scheduler"
-require_relative "snapshot_runner"
-require_relative "config"
+require_relative 'catalog_client'
+require_relative 'database'
+require_relative 'dashboard_endpoint'
+require_relative 'health_endpoint'
+require_relative 'runtime'
+require_relative 'scheduler'
+require_relative 'snapshot_runner'
+require_relative 'config'
 
 module RunpodGpuAvailability
   class App
@@ -32,11 +32,11 @@ module RunpodGpuAvailability
 
     def self.rack_app(database:, runner:, config:)
       Rack::Builder.new do
-        map "/healthz" do
+        map '/healthz' do
           run HealthEndpoint.new(runner:)
         end
 
-        map "/" do
+        map '/' do
           run DashboardEndpoint.new(
             database:,
             runner:,
@@ -46,6 +46,5 @@ module RunpodGpuAvailability
         end
       end.to_app
     end
-
   end
 end

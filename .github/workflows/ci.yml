@@ -21,6 +21,20 @@ jobs:
           bundler-cache: true
       - run: bundle exec rake test
 
+  lint:
+    continue-on-error: true
+    concurrency:
+      group: ci-lint-${{ github.workflow }}-${{ github.ref }}
+      cancel-in-progress: true
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v5
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: .tool-versions
+          bundler-cache: true
+      - run: bundle exec rubocop
+
   image:
     if: github.event_name == 'pull_request'
     needs: test

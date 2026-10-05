@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "rufus-scheduler"
+require 'rufus-scheduler'
 
 module RunpodGpuAvailability
   class Scheduler
@@ -19,9 +19,9 @@ module RunpodGpuAvailability
 
     def capture
       snapshot_id = @runner.run
-      @logger.info(event: "snapshot_finished", snapshot_id: snapshot_id, error: @runner.last_error)
-    rescue StandardError => error
-      @logger.error(event: "snapshot_crashed", error: error.message)
+      @logger.info(event: 'snapshot_finished', snapshot_id: snapshot_id, error: @runner.last_error)
+    rescue StandardError => e
+      @logger.error(event: 'snapshot_crashed', error: e.message)
     end
   end
 end

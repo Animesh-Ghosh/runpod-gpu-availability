@@ -5,7 +5,7 @@ RUN apt-get update -qq && apt-get install --no-install-recommends -y build-essen
 
 WORKDIR /app
 COPY Gemfile Gemfile.lock ./
-RUN BUNDLE_WITHOUT=test BUNDLE_DEPLOYMENT=true BUNDLE_PATH=/usr/local/bundle \
+RUN BUNDLE_WITHOUT="test development" BUNDLE_DEPLOYMENT=true BUNDLE_PATH=/usr/local/bundle \
   bundle install --jobs 4 --retry 3
 
 FROM ruby:4.0.6-slim
@@ -17,6 +17,6 @@ WORKDIR /app
 COPY --from=gems /usr/local/bundle /usr/local/bundle
 COPY . .
 
-ENV PORT=8080 DATABASE_PATH=/data/availability.sqlite3 BUNDLE_WITHOUT=test BUNDLE_PATH=/usr/local/bundle
+ENV PORT=8080 DATABASE_PATH=/data/availability.sqlite3 BUNDLE_WITHOUT="test development" BUNDLE_PATH=/usr/local/bundle
 EXPOSE 8080
 CMD ["bundle", "exec", "puma", "-b", "tcp://0.0.0.0:8080", "config.ru"]

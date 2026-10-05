@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-require "json"
-require "rack"
+require 'json'
+require 'rack'
 
 module RunpodGpuAvailability
   class HealthEndpoint
@@ -12,11 +12,11 @@ module RunpodGpuAvailability
     def call(environment)
       return not_found unless Rack::Request.new(environment).get?
 
-      [200, { "content-type" => "application/json" }, [JSON.generate(ok: true, last_error: @runner.last_error)]]
+      [200, { 'content-type' => 'application/json' }, [JSON.generate(ok: true, last_error: @runner.last_error)]]
     end
 
     private
 
-    def not_found = [404, { "content-type" => "text/plain" }, ["Not found\n"]]
+    def not_found = [404, { 'content-type' => 'text/plain' }, ["Not found\n"]]
   end
 end
