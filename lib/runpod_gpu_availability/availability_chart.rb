@@ -33,7 +33,7 @@ module RunpodGpuAvailability
     end
 
     def regions
-      @regions ||= statuses.map { |status| [status.fetch("region_id"), status["region_name"]] }.uniq.sort
+      @regions ||= statuses.map { |status| status.fetch("region_id") }.uniq.sort
     end
 
     def status_for(region_id, timestamp)

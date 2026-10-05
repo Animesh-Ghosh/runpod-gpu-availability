@@ -18,6 +18,37 @@ class DatabaseTest < Minitest::Test
       assert_equal 2, history.first["observations"]
       assert_equal 1, history.first["high_observations"]
       assert_equal 1, history.first["low_observations"]
+      refute history.first.key?("region_name")
+    ensure
+      database&.close
+    end
+  end
+
+  def test_removes_the_legacy_region_name_column
+    Dir.mktmpdir do |directory|
+      path = File.join(directory, "availability.sqlite3")
+      legacy_database = SQLite3::Database.new(path)
+      legacy_database.execute_batch <<~SQL
+        CREATE TABLE snapshots (id INTEGER PRIMARY KEY, captured_at TEXT NOT NULL, product TEXT NOT NULL);
+        CREATE TABLE gpu_availabilities (
+          id INTEGER PRIMARY KEY,
+          snapshot_id INTEGER NOT NULL,
+          region_id TEXT NOT NULL,
+          region_name TEXT,
+          gpu_id TEXT NOT NULL,
+          gpu_name TEXT NOT NULL,
+          pool TEXT,
+          vram_gb INTEGER,
+          availability TEXT NOT NULL,
+          serverless_price_usd_per_hour REAL
+        );
+      SQL
+      legacy_database.close
+
+      database = RunpodGpuAvailability::Database.new(path: path)
+      columns = database.columns_for("gpu_availabilities")
+
+      refute_includes columns, "region_name"
     ensure
       database&.close
     end

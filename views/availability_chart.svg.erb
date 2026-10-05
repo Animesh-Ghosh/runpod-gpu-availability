@@ -2,12 +2,12 @@
   <svg viewBox="0 0 <%= label_width + plot_width %> <%= chart_height %>" role="img" aria-label="Availability by region over time">
     <text x="<%= label_width %>" y="14" class="axis-label"><%= h(label(timestamps.first)) %></text>
     <text x="<%= label_width + plot_width %>" y="14" class="axis-label" text-anchor="end"><%= h(label(timestamps.last)) %></text>
-    <% regions.each_with_index do |(region_id, region_name), row| %>
-      <text x="0" y="<%= 43 + (row * row_height) %>" class="region-label"><%= h(region_name || region_id) %></text>
+    <% regions.each_with_index do |region_id, row| %>
+      <text x="0" y="<%= 43 + (row * row_height) %>" class="region-label"><%= h(region_id) %></text>
       <% timestamps.each_with_index do |timestamp, column| %>
         <% status = status_for(region_id, timestamp) %>
         <% next unless status %>
-        <rect x="<%= label_width + (column * cell_width).round(2) %>" y="<%= 26 + (row * row_height) %>" width="<%= [cell_width + 0.4, 1].max.round(2) %>" height="<%= row_height - 4 %>" fill="<%= COLORS.fetch(status.fetch("availability"), COLORS.fetch("UNKNOWN")) %>"><title><%= h(region_name || region_id) %> · <%= h(timestamp) %> · <%= h(status.fetch("availability")) %> · <%= status.fetch("advertised_configurations") %> advertised configurations</title></rect>
+        <rect x="<%= label_width + (column * cell_width).round(2) %>" y="<%= 26 + (row * row_height) %>" width="<%= [cell_width + 0.4, 1].max.round(2) %>" height="<%= row_height - 4 %>" fill="<%= COLORS.fetch(status.fetch("availability"), COLORS.fetch("UNKNOWN")) %>"><title><%= h(region_id) %> · <%= h(timestamp) %> · <%= h(status.fetch("availability")) %> · <%= status.fetch("advertised_configurations") %> advertised configurations</title></rect>
       <% end %>
     <% end %>
   </svg>

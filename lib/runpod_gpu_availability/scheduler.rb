@@ -4,16 +4,19 @@ require "rufus-scheduler"
 
 module RunpodGpuAvailability
   class Scheduler
-    def initialize(runner:, interval_seconds:, logger:, scheduler: Rufus::Scheduler.new)
+    def initialize(runner:, interval_seconds:, logger:, scheduler: nil)
       @runner = runner
       @interval_seconds = interval_seconds
       @logger = logger
-      @scheduler = scheduler
+      @scheduler = scheduler || Rufus::Scheduler.new
     end
 
     def start
-      @scheduler.every(@interval_seconds, first_in: 5, overlap: false) { capture }
-      @scheduler
+      @job ||= @scheduler.every(@interval_seconds, first_in: 5, overlap: false) { capture }
+    end
+
+    def shutdown(wait = :wait)
+      @scheduler.shutdown(wait)
     end
 
     private

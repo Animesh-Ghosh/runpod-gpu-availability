@@ -10,7 +10,7 @@ module RunpodGpuAvailability
   class Dashboard
     TEMPLATE_PATH = File.expand_path("../../views/dashboard.html.erb", __dir__)
 
-    def initialize(product:, snapshot:, current:, current_regions:, history:, region_statuses:, snapshot_count:, last_error:, days:)
+    def initialize(product:, snapshot:, current:, current_regions:, history:, region_statuses:, snapshot_count:, last_error:, days:, snapshot_cadence:)
       @product = product
       @snapshot = snapshot
       @current = current
@@ -20,6 +20,7 @@ module RunpodGpuAvailability
       @snapshot_count = snapshot_count
       @last_error = last_error
       @days = days
+      @snapshot_cadence = snapshot_cadence
     end
 
     def render
@@ -28,7 +29,7 @@ module RunpodGpuAvailability
 
     private
 
-    attr_reader :product, :snapshot, :current, :current_regions, :history, :region_statuses, :snapshot_count, :last_error, :days
+    attr_reader :product, :snapshot, :current, :current_regions, :history, :region_statuses, :snapshot_count, :last_error, :days, :snapshot_cadence
 
     def captured_at
       Time.parse(snapshot.fetch("captured_at")).utc.iso8601

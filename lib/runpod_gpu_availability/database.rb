@@ -26,7 +26,6 @@ module RunpodGpuAvailability
             parameters = [
               snapshot_id,
               data_center.fetch("id"),
-              data_center["name"],
               gpu.fetch("id"),
               gpu.fetch("name"),
               gpu["pool"],
@@ -36,9 +35,9 @@ module RunpodGpuAvailability
             ]
             @database.execute(<<~SQL, parameters)
               INSERT INTO gpu_availabilities (
-                snapshot_id, region_id, region_name, gpu_id, gpu_name, pool,
+                snapshot_id, region_id, gpu_id, gpu_name, pool,
                 vram_gb, availability, serverless_price_usd_per_hour
-              ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+              ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
             SQL
           end
         end
@@ -76,7 +75,6 @@ module RunpodGpuAvailability
       @database.execute(<<~SQL, [snapshot["id"]])
         SELECT
           region_id,
-          MAX(region_name) AS region_name,
           CASE MAX(
             CASE availability
               WHEN 'HIGH' THEN 3
@@ -104,7 +102,6 @@ module RunpodGpuAvailability
       @database.execute(<<~SQL, [product, since.utc.iso8601])
         SELECT
           a.region_id,
-          MAX(a.region_name) AS region_name,
           a.gpu_name,
           a.pool,
           a.vram_gb,
@@ -128,7 +125,6 @@ module RunpodGpuAvailability
         SELECT
           s.captured_at,
           a.region_id,
-          MAX(a.region_name) AS region_name,
           CASE MAX(
             CASE a.availability
               WHEN 'HIGH' THEN 3
@@ -155,6 +151,10 @@ module RunpodGpuAvailability
       @database.get_first_value("SELECT COUNT(*) FROM snapshots WHERE product = ?", [product])
     end
 
+    def columns_for(table_name)
+      @database.table_info(table_name).map { |column| column.fetch("name") }
+    end
+
     def close
       @database.close
     end
@@ -176,7 +176,6 @@ module RunpodGpuAvailability
           id INTEGER PRIMARY KEY,
           snapshot_id INTEGER NOT NULL REFERENCES snapshots(id) ON DELETE CASCADE,
           region_id TEXT NOT NULL,
-          region_name TEXT,
           gpu_id TEXT NOT NULL,
           gpu_name TEXT NOT NULL,
           pool TEXT,
@@ -190,6 +189,13 @@ module RunpodGpuAvailability
         CREATE INDEX IF NOT EXISTS gpu_availabilities_snapshot_id
           ON gpu_availabilities(snapshot_id);
       SQL
+      remove_legacy_region_name!
+    end
+
+    def remove_legacy_region_name!
+      return unless columns_for("gpu_availabilities").include?("region_name")
+
+      @database.execute("ALTER TABLE gpu_availabilities DROP COLUMN region_name")
     end
   end
 end
