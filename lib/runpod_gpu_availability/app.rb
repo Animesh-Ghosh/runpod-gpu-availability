@@ -14,7 +14,7 @@ require_relative "settings"
 
 module RunpodGpuAvailability
   class App
-    def self.build(environment: ENV, logger: Logger.new($stdout), database: nil, runner: nil, start_scheduler: nil)
+    def self.build(environment: ENV, logger: Logger.new($stdout), database: nil, runner: nil)
       settings = Settings.new(environment)
       database ||= Database.new(path: settings.database_path)
       runner ||= SnapshotRunner.new(
@@ -22,14 +22,11 @@ module RunpodGpuAvailability
         database: database,
         product: settings.product
       )
-      scheduler_enabled = start_scheduler.nil? ? settings.scheduler_enabled? : start_scheduler
-      scheduler = if scheduler_enabled
-        Scheduler.new(
-          runner: runner,
-          interval_seconds: settings.snapshot_interval_seconds,
-          logger: logger
-        ).tap(&:start)
-      end
+      scheduler = Scheduler.new(
+        runner: runner,
+        interval_seconds: settings.snapshot_interval_seconds,
+        logger: logger
+      ).tap(&:start)
 
       Runtime.new(app: rack_app(database: database, runner: runner, settings: settings), scheduler: scheduler)
     end

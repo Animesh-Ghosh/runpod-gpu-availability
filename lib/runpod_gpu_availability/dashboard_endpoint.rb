@@ -25,7 +25,7 @@ module RunpodGpuAvailability
       data = dashboard_data(days: requested_days(request))
       return json(json_data(data)) if json_request?(request)
 
-      body = Dashboard.new(**data, snapshot_cadence: @snapshot_cadence).render
+      body = Dashboard.new(**html_data(data), snapshot_cadence: @snapshot_cadence).render
       [200, { "content-type" => "text/html; charset=utf-8" }, [body]]
     end
 
@@ -67,6 +67,10 @@ module RunpodGpuAvailability
       end
 
       data.except(:current, :current_regions).merge(current: grouped_current)
+    end
+
+    def html_data(data)
+      data.slice(:snapshot, :current_regions, :region_statuses, :snapshot_count, :last_error, :days)
     end
 
     def availability_key(record)

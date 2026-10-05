@@ -14,7 +14,7 @@ module RunpodGpuAvailability
     end
 
     def close
-      @scheduler&.shutdown(:wait)
+      @scheduler.shutdown(:wait)
     end
   end
 end

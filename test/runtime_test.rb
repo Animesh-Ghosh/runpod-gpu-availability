@@ -18,10 +18,4 @@ class RuntimeTest < Minitest::Test
 
     assert_equal :wait, scheduler.shutdown_argument
   end
-
-  def test_close_is_safe_without_a_scheduler
-    runtime = RunpodGpuAvailability::Runtime.new(app: ->(_environment) { [204, {}, []] }, scheduler: nil)
-
-    assert_nil runtime.close
-  end
 end

@@ -15,11 +15,6 @@ module RunpodGpuAvailability
       )
       raise ArgumentError, "SNAPSHOT_INTERVAL_SECONDS must be positive" unless @snapshot_interval_seconds.positive?
 
-      @scheduler_enabled = environment.fetch("SCHEDULER_ENABLED", "false") == "true"
-    end
-
-    def scheduler_enabled?
-      @scheduler_enabled
     end
 
     def snapshot_cadence
