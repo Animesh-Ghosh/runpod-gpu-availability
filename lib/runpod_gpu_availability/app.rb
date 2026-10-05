@@ -14,10 +14,10 @@ require_relative "config"
 
 module RunpodGpuAvailability
   class App
-    def self.build(environment: ENV, logger: Logger.new($stdout), database: nil, runner: nil)
+    def self.build(environment: ENV)
       config = Config.new(environment)
-      database ||= Database.new(path: config.database_path)
-      runner ||= SnapshotRunner.new(
+      database = Database.new(path: config.database_path)
+      runner = SnapshotRunner.new(
         client: CatalogClient.new(api_key: config.api_key, product: config.product),
         database: database,
         product: config.product
@@ -25,7 +25,7 @@ module RunpodGpuAvailability
       scheduler = Scheduler.new(
         runner: runner,
         interval_seconds: config.snapshot_interval_seconds,
-        logger: logger
+        logger: Logger.new($stdout)
       ).tap(&:start)
 
       Runtime.new(app: rack_app(database: database, runner: runner, config: config), scheduler: scheduler)
