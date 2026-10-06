@@ -1,13 +1,14 @@
 # RunPod GPU Availability
 
 A tiny Rack dashboard that records the RunPod GPU catalog's **SERVERLESS**
-availability by region and serves the latest snapshot plus a seven-day history.
+availability by region and serves the latest snapshot plus selectable 7-, 28-,
+and 90-day history.
 It is intended to answer a practical question: which RunPod region/pool has
 repeatedly had capacity for a Reel Translator endpoint?
 
-## Live dashboard
+## Dashboard
 
-[![RunPod GPU availability dashboard](docs/dashboard.png)](https://animesh-runpod-gpu-availability.fly.dev/)
+[![RunPod GPU availability dashboard preview](docs/dashboard.png)](https://animesh-runpod-gpu-availability.fly.dev/)
 
 ## What it records
 
@@ -37,11 +38,10 @@ snapshot is captured shortly after boot; later snapshots default to every hour.
 
 ## Fly.io deployment
 
-Create a new Fly app from this directory. `fly launch` writes the chosen unique
-app name into `fly.toml`; this repository intentionally does not hard-code one.
+The checked-in `fly.toml` targets `animesh-runpod-gpu-availability`. A fork
+should first change its `app` value to a unique Fly app name and create that app.
 
 ```sh
-fly launch --copy-config --no-deploy
 fly volumes create availability_data --size 1 --region sin
 fly secrets set RUNPOD_API_KEY=...
 fly deploy
