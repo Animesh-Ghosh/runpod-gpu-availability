@@ -4,7 +4,7 @@ A tiny Rack dashboard that records the RunPod GPU catalog's **SERVERLESS**
 availability by region and serves the latest snapshot plus selectable 7-, 28-,
 and 90-day history.
 It is intended to answer a practical question: which RunPod region/pool has
-repeatedly had capacity for a Reel Translator endpoint?
+repeatedly had capacity for a Serverless workload?
 
 ## Dashboard
 
