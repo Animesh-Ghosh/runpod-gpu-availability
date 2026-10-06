@@ -37,6 +37,7 @@ module RunpodGpuAvailability
     def dashboard_data(days:)
       since = Time.now - (days * 24 * 60 * 60)
       snapshot, current = @database.current_availabilities(product: @product)
+      summaries = @database.region_availability_summaries(product: @product, since:)
       {
         product: @product,
         snapshot: clean_row(snapshot),
@@ -44,6 +45,7 @@ module RunpodGpuAvailability
         current_regions: current_regions(since:, configurations: current),
         history: @database.history(product: @product, since: since).map { |row| clean_row(row) },
         region_statuses: @database.region_statuses(product: @product, since: since).map { |row| clean_row(row) },
+        region_availability_summaries: summaries.map { |row| clean_row(row) },
         snapshot_count: @database.snapshot_count(product: @product),
         last_error: @runner.last_error,
         days:
@@ -89,7 +91,9 @@ module RunpodGpuAvailability
     end
 
     def html_data(data)
-      data.slice(:snapshot, :current_regions, :region_statuses, :snapshot_count, :last_error, :days)
+      data.slice(:snapshot, :current_regions, :snapshot_count, :last_error, :days).merge(
+        historical: data.slice(:region_statuses, :region_availability_summaries)
+      )
     end
 
     def availability_key(record)

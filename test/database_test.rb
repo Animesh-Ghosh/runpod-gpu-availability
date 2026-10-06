@@ -19,6 +19,14 @@ class DatabaseTest < Minitest::Test
       assert_equal 1, history.first['high_observations']
       assert_equal 1, history.first['low_observations']
       refute history.first.key?('region_name')
+
+      summary = database.region_availability_summaries(product: 'SERVERLESS', since: now - 1).first
+      assert_equal 'US-IL-1', summary['region_id']
+      assert_equal 2, summary['snapshots_observed']
+      assert_equal 1, summary['high_snapshots']
+      assert_equal 1, summary['low_snapshots']
+      assert_equal 'HIGH', summary['best_availability']
+      assert_equal 'LOW', summary['worst_availability']
     ensure
       database&.close
     end

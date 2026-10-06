@@ -14,6 +14,7 @@
       .HIGH { color: #14833b; font-weight: 700; } .MEDIUM { color: #b06d00; font-weight: 700; }
       .LOW { color: #b5410e; font-weight: 700; } .UNKNOWN { color: #777; }
       .muted { opacity: .72; } .warning { color: #b5410e; } .configurations { white-space: normal; min-width: 18rem; }
+      .configurations summary { cursor: pointer; } .configurations ul { margin: .4rem 0 0; padding-left: 1.2rem; }
       .chart-wrap { overflow-x: auto; border: 1px solid #7774; padding: .75rem; }
       svg { display: block; min-width: 850px; width: 100%; } .region-label { font-size: 13px; fill: currentColor; }
       .axis-label { font-size: 11px; fill: currentColor; opacity: .72; }
@@ -32,13 +33,25 @@
     <p class="legend"><span><i class="swatch" style="background:#22c55e"></i>High</span><span><i class="swatch" style="background:#f59e0b"></i>Medium</span><span><i class="swatch" style="background:#ef4444"></i>Low</span><span><i class="swatch" style="background:#94a3b8"></i>Unknown</span></p>
     <%= AvailabilityChart.new(statuses: region_statuses).render %>
 
+    <h3>Historical region summary</h3>
+    <p class="muted">Best and worst are the region's best advertised configuration at each capture, over the selected period.</p>
+    <% if region_availability_summaries.empty? %>
+      <p>No historical regional availability rows recorded.</p>
+    <% else %>
+      <table><thead><tr><th>Region</th><th>Observed best</th><th>Observed worst</th><th>Snapshots</th><th>High</th><th>Medium</th><th>Low</th><th>Unknown</th></tr></thead><tbody>
+        <% region_availability_summaries.each do |record| %>
+          <tr><td><%= h(record["region_id"]) %></td><td class="<%= h(record["best_availability"]) %>"><%= h(record["best_availability"]) %></td><td class="<%= h(record["worst_availability"]) %>"><%= h(record["worst_availability"]) %></td><td><%= record["snapshots_observed"] %></td><td><%= record["high_snapshots"] %></td><td><%= record["medium_snapshots"] %></td><td><%= record["low_snapshots"] %></td><td><%= record["unknown_snapshots"] %></td></tr>
+        <% end %>
+      </tbody></table>
+    <% end %>
+
     <h2>Current region status</h2>
     <% if current_regions.empty? %>
       <p>No regional availability rows in the latest snapshot.</p>
     <% else %>
       <table><thead><tr><th>Region</th><th>Best availability</th><th>Worst availability</th><th>Advertised configurations</th><th>Last observed $/hour</th><th>Observed price range</th></tr></thead><tbody>
         <% current_regions.each do |record| %>
-          <tr><td><%= h(record["region_id"]) %></td><td class="<%= h(record["availability"]) %>"><%= h(record["availability"]) %></td><td class="<%= h(record["worst_availability"]) %>"><%= h(record["worst_availability"]) %></td><td class="configurations"><%= record["configurations"].map { |configuration| "#{h(configuration["gpu_name"])} · <span class=\"#{h(configuration["availability"])}\">#{h(configuration["availability"])}</span>" }.join(', ') %></td><td><%= h(price(record["last_observed_price_usd_per_hour"])) %></td><td><%= h(price_range(record)) %></td></tr>
+          <tr><td><%= h(record["region_id"]) %></td><td class="<%= h(record["availability"]) %>"><%= h(record["availability"]) %></td><td class="<%= h(record["worst_availability"]) %>"><%= h(record["worst_availability"]) %></td><td class="configurations"><details><summary><%= record["configurations"].length %> configuration<%= 's' unless record["configurations"].one? %></summary><ul><% record["configurations"].each do |configuration| %><li><%= h(configuration["gpu_name"]) %> · <span class="<%= h(configuration["availability"]) %>"><%= h(configuration["availability"]) %></span></li><% end %></ul></details></td><td><%= h(price(record["last_observed_price_usd_per_hour"])) %></td><td><%= h(price_range(record)) %></td></tr>
         <% end %>
       </tbody></table>
     <% end %>

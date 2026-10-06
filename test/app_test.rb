@@ -32,6 +32,7 @@ class AppTest < Minitest::Test
     assert_includes dashboard.body, 'US-IL-1'
     assert_includes dashboard.body, 'History: last 28 days'
     assert_includes dashboard.body, 'Region status timeline'
+    assert_includes dashboard.body, 'Historical region summary'
     assert_includes dashboard.body, 'Current region status'
     assert_includes dashboard.body, 'Worst availability'
     assert_includes dashboard.body, 'Snapshots every 30 minutes.'
@@ -39,6 +40,7 @@ class AppTest < Minitest::Test
     assert_includes dashboard.body, 'Observed price range'
     assert_includes dashboard.body, '$1.10'
     assert_includes dashboard.body, '$1.10 — $1.10'
+    assert_includes dashboard.body, '<summary>1 configuration</summary>'
     assert_includes dashboard.body, 'RTX 4090 · <span class="HIGH">HIGH</span>'
     refute_includes dashboard.body, 'US Illinois 1'
 
