@@ -13,7 +13,7 @@
       th { position: sticky; top: 0; background: Canvas; }
       .HIGH { color: #14833b; font-weight: 700; } .MEDIUM { color: #b06d00; font-weight: 700; }
       .LOW { color: #b5410e; font-weight: 700; } .UNKNOWN { color: #777; }
-      .muted { opacity: .72; } .warning { color: #b5410e; }
+      .muted { opacity: .72; } .warning { color: #b5410e; } .configurations { white-space: normal; min-width: 18rem; }
       .chart-wrap { overflow-x: auto; border: 1px solid #7774; padding: .75rem; }
       svg { display: block; min-width: 850px; width: 100%; } .region-label { font-size: 13px; fill: currentColor; }
       .axis-label { font-size: 11px; fill: currentColor; opacity: .72; }
@@ -38,7 +38,7 @@
     <% else %>
       <table><thead><tr><th>Region</th><th>Best availability</th><th>Worst availability</th><th>Advertised configurations</th><th>Last observed $/hour</th><th>Observed price range</th></tr></thead><tbody>
         <% current_regions.each do |record| %>
-          <tr><td><%= h(record["region_id"]) %></td><td class="<%= h(record["availability"]) %>"><%= h(record["availability"]) %></td><td class="<%= h(record["worst_availability"]) %>"><%= h(record["worst_availability"]) %></td><td><%= record["advertised_configurations"] %></td><td><%= h(price(record["last_observed_price_usd_per_hour"])) %></td><td><%= h(price_range(record)) %></td></tr>
+          <tr><td><%= h(record["region_id"]) %></td><td class="<%= h(record["availability"]) %>"><%= h(record["availability"]) %></td><td class="<%= h(record["worst_availability"]) %>"><%= h(record["worst_availability"]) %></td><td class="configurations"><%= record["configurations"].map { |configuration| "#{h(configuration["gpu_name"])} · <span class=\"#{h(configuration["availability"])}\">#{h(configuration["availability"])}</span>" }.join(', ') %></td><td><%= h(price(record["last_observed_price_usd_per_hour"])) %></td><td><%= h(price_range(record)) %></td></tr>
         <% end %>
       </tbody></table>
     <% end %>

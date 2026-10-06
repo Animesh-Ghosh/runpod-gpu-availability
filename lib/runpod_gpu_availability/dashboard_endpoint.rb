@@ -41,7 +41,7 @@ module RunpodGpuAvailability
         product: @product,
         snapshot: clean_row(snapshot),
         current: current.map { |row| clean_row(row) },
-        current_regions: current_regions(since:),
+        current_regions: current_regions(since:, configurations: current),
         history: @database.history(product: @product, since: since).map { |row| clean_row(row) },
         region_statuses: @database.region_statuses(product: @product, since: since).map { |row| clean_row(row) },
         snapshot_count: @database.snapshot_count(product: @product),
@@ -50,11 +50,17 @@ module RunpodGpuAvailability
       }
     end
 
-    def current_regions(since:)
+    def current_regions(since:, configurations:)
       price_ranges = observed_price_ranges(since:)
       @database.current_region_statuses(product: @product).map do |row|
         region = clean_row(row)
-        region.merge(price_ranges.fetch(region.fetch('region_id'), {}))
+        region_id = region.fetch('region_id')
+        region.merge(
+          price_ranges.fetch(region_id, {}),
+          'configurations' => configurations.filter_map do |configuration|
+            clean_row(configuration) if configuration.fetch('region_id') == region_id
+          end
+        )
       end
     end
 

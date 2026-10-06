@@ -39,7 +39,7 @@ class AppTest < Minitest::Test
     assert_includes dashboard.body, 'Observed price range'
     assert_includes dashboard.body, '$1.10'
     assert_includes dashboard.body, '$1.10 — $1.10'
-    refute_includes dashboard.body, 'RTX 4090'
+    assert_includes dashboard.body, 'RTX 4090 · <span class="HIGH">HIGH</span>'
     refute_includes dashboard.body, 'US Illinois 1'
 
     json = Rack::MockRequest.new(@app).get('/dashboard.json?days=28')
