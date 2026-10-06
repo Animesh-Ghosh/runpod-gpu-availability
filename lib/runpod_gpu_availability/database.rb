@@ -88,6 +88,19 @@ module RunpodGpuAvailability
             WHEN 1 THEN 'LOW'
             ELSE 'UNKNOWN'
           END AS availability,
+          CASE MIN(
+            CASE availability
+              WHEN 'HIGH' THEN 3
+              WHEN 'MEDIUM' THEN 2
+              WHEN 'LOW' THEN 1
+              ELSE 0
+            END
+          )
+            WHEN 3 THEN 'HIGH'
+            WHEN 2 THEN 'MEDIUM'
+            WHEN 1 THEN 'LOW'
+            ELSE 'UNKNOWN'
+          END AS worst_availability,
           COUNT(*) AS advertised_configurations,
           MIN(serverless_price_usd_per_hour) AS last_observed_price_usd_per_hour
         FROM gpu_availabilities

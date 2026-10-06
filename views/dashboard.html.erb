@@ -36,9 +36,9 @@
     <% if current_regions.empty? %>
       <p>No regional availability rows in the latest snapshot.</p>
     <% else %>
-      <table><thead><tr><th>Region</th><th>Best availability</th><th>Advertised configurations</th><th>Last observed $/hour</th><th>Observed price range</th></tr></thead><tbody>
+      <table><thead><tr><th>Region</th><th>Best availability</th><th>Worst availability</th><th>Advertised configurations</th><th>Last observed $/hour</th><th>Observed price range</th></tr></thead><tbody>
         <% current_regions.each do |record| %>
-          <tr><td><%= h(record["region_id"]) %></td><td class="<%= h(record["availability"]) %>"><%= h(record["availability"]) %></td><td><%= record["advertised_configurations"] %></td><td><%= h(price(record["last_observed_price_usd_per_hour"])) %></td><td><%= h(price_range(record)) %></td></tr>
+          <tr><td><%= h(record["region_id"]) %></td><td class="<%= h(record["availability"]) %>"><%= h(record["availability"]) %></td><td class="<%= h(record["worst_availability"]) %>"><%= h(record["worst_availability"]) %></td><td><%= record["advertised_configurations"] %></td><td><%= h(price(record["last_observed_price_usd_per_hour"])) %></td><td><%= h(price_range(record)) %></td></tr>
         <% end %>
       </tbody></table>
     <% end %>
