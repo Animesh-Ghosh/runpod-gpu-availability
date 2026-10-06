@@ -42,6 +42,7 @@ class AppTest < Minitest::Test
     assert_includes dashboard.body, 'Current region status'
     assert_includes dashboard.body, 'Worst availability'
     assert_includes dashboard.body, 'Snapshots every 30 minutes.'
+    assert_includes dashboard.body, 'Last run: 2026-10-06T'
     assert_includes dashboard.body, 'Last observed $/hour'
     assert_includes dashboard.body, 'Observed price range'
     assert_includes dashboard.body, '$1.10'

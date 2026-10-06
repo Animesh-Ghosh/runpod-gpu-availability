@@ -35,7 +35,7 @@ module RunpodGpuAvailability
     def status_message
       return 'No successful snapshot yet.' unless snapshot
 
-      "Captured #{captured_at} · #{snapshot_count} snapshots retained."
+      "#{snapshot_count} snapshots retained."
     end
 
     def h(value)
