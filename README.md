@@ -23,7 +23,7 @@ volume**. Rufus Scheduler captures a snapshot shortly after boot and then every
 hour. This avoids relying on GitHub Actions cron, while keeping one SQLite writer.
 Do not scale this app horizontally without moving the SQLite design first.
 
-Set `SNAPSHOT_INTERVAL_SECONDS` to change the cadence; it defaults to `3600` and the homepage displays the active interval.
+Set `SNAPSHOT_INTERVAL_SECONDS` to change the cadence; it defaults to `3600` and the homepage displays the active interval and the latest successful run.
 
 ## Local run
 
