@@ -8,6 +8,7 @@
     <style>
       :root { color-scheme: light dark; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
       body { max-width: 1400px; margin: 2rem auto; padding: 0 1rem; }
+      .page-header { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; } .page-header h1 { margin: 0; }
       table { border-collapse: collapse; width: 100%; margin: 1rem 0 2rem; font-size: .9rem; }
       th, td { padding: .55rem; border-bottom: 1px solid #7774; text-align: left; white-space: nowrap; }
       th { position: sticky; top: 0; background: Canvas; }
@@ -22,7 +23,10 @@
     </style>
   </head>
   <body>
-    <h1>RunPod GPU availability</h1>
+    <header class="page-header">
+      <h1>RunPod GPU availability</h1>
+      <a href="https://github.com/Animesh-Ghosh/runpod-gpu-availability">GitHub repository</a>
+    </header>
     <p class="<%= snapshot ? "muted" : "warning" %>"><%= h(status_message) %><% if last_error %> <span class="warning">Last fetch error: <%= h(last_error) %></span><% end %></p>
     <p class="muted">Snapshots every <%= h(snapshot_cadence) %>.</p>
 

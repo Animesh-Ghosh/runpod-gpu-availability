@@ -30,6 +30,7 @@ class AppTest < Minitest::Test
     dashboard = Rack::MockRequest.new(@app).get('/?days=28')
     assert_equal 200, dashboard.status
     assert_includes dashboard.body, 'US-IL-1'
+    assert_includes dashboard.body, 'https://github.com/Animesh-Ghosh/runpod-gpu-availability'
     assert_includes dashboard.body, 'History: last 28 days'
     assert_includes dashboard.body, 'Region status timeline'
     assert_includes dashboard.body, 'Historical region summary'
