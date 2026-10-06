@@ -8,6 +8,10 @@ class SchedulerTest < Minitest::Test
       calls << [interval, options, block]
       :scheduled_job
     end
+
+    attr_reader :shutdown_arguments
+
+    def shutdown(**arguments) = @shutdown_arguments = arguments
   end
 
   def test_schedules_non_overlapping_captures
@@ -28,5 +32,19 @@ class SchedulerTest < Minitest::Test
     assert_equal 3_600, interval
     assert_equal({ first_in: 5, overlap: false }, options)
     assert_kind_of Proc, callback
+  end
+
+  def test_stops_the_underlying_scheduler_without_waiting_for_the_next_interval
+    scheduler = FakeScheduler.new([])
+    service = RunpodGpuAvailability::Scheduler.new(
+      runner: Object.new,
+      interval_seconds: 3_600,
+      logger: Logger.new(File::NULL),
+      scheduler:
+    )
+
+    service.stop
+
+    assert_equal({ wait: false }, scheduler.shutdown_arguments)
   end
 end

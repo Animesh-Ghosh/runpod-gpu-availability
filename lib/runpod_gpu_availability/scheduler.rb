@@ -15,6 +15,8 @@ module RunpodGpuAvailability
       @scheduler.every(@interval_seconds, first_in: 5, overlap: false) { capture }
     end
 
+    def stop = @scheduler.shutdown(wait: false)
+
     private
 
     def capture

@@ -6,14 +6,16 @@ require 'rack/mock'
 class AppTest < Minitest::Test
   def setup
     @directory = Dir.mktmpdir
-    @database = RunpodGpuAvailability::Database.new(path: File.join(@directory, 'availability.sqlite3'))
+    path = File.join(@directory, 'availability.sqlite3')
+    RunpodGpuAvailability::Migrator.run(path:)
+    @database = RunpodGpuAvailability::AvailabilityRepository.new(path:)
     client = Struct.new(:catalog) { def fetch = catalog }.new(catalog)
     @runner = RunpodGpuAvailability::SnapshotRunner.new(client:, database: @database)
     config = RunpodGpuAvailability::Config.load(
       'SNAPSHOT_INTERVAL_SECONDS' => '1800'
     )
     @app = RunpodGpuAvailability::App.rack_app(
-      database: @database,
+      repository: @database,
       runner: @runner,
       config:
     )
@@ -77,6 +79,22 @@ class AppTest < Minitest::Test
   def test_exposes_only_canonical_dashboard_routes
     assert_equal 404, Rack::MockRequest.new(@app).get('/.json').status
     assert_equal 404, Rack::MockRequest.new(@app).get('/index.json').status
+  end
+
+  def test_build_returns_only_the_rack_application
+    path = File.join(@directory, 'built.sqlite3')
+    RunpodGpuAvailability::Migrator.run(path:)
+
+    app = RunpodGpuAvailability::App.build(
+      environment: {
+        'DATABASE_PATH' => path,
+        'RUNPOD_API_KEY' => 'test-key',
+        'SNAPSHOT_INTERVAL_SECONDS' => '3600'
+      }
+    )
+
+    refute_kind_of RunpodGpuAvailability::Runtime, app
+    assert_equal 200, Rack::MockRequest.new(app).get('/healthz').status
   end
 
   private

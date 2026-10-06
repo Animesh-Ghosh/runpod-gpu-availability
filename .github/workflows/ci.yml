@@ -25,6 +25,8 @@ jobs:
               - 'Gemfile'
               - 'Gemfile.lock'
               - 'config.ru'
+              - 'bin/**'
+              - 'db/**'
               - 'fly.toml'
               - 'lib/**'
               - 'views/**'

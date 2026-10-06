@@ -29,12 +29,13 @@ Set `SNAPSHOT_INTERVAL_SECONDS` to change the cadence; it defaults to `3600` and
 
 ```sh
 bundle install
-RUNPOD_API_KEY=... SNAPSHOT_INTERVAL_SECONDS=60 bundle exec puma -b tcp://127.0.0.1:8080 config.ru
+RUNPOD_API_KEY=... SNAPSHOT_INTERVAL_SECONDS=60 bundle exec ruby bin/server
 open http://127.0.0.1:8080
 ```
 
-`RUNPOD_API_KEY` needs read access to the RunPod REST v2 catalog. The first
-snapshot is captured shortly after boot; later snapshots default to every hour.
+`RUNPOD_API_KEY` needs read access to the RunPod REST v2 catalog. `bin/server`
+applies pending Sequel migrations before starting Puma. The first snapshot is
+captured shortly after boot; later snapshots default to every hour.
 
 ## Fly.io deployment
 
@@ -50,7 +51,8 @@ fly deploy
 The Fly Machine intentionally stays running: its in-process scheduler cannot
 collect while stopped. SQLite data lives only on the `availability_data` volume.
 For this low-cost decision tool, deleting that volume deletes the history; no
-separate backup workflow is configured.
+separate backup workflow is configured. Each Machine boot migrates that mounted
+database before serving traffic.
 
 ## Verification
 

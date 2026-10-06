@@ -1,11 +1,11 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
-require 'fileutils'
 require 'time'
 
 $LOAD_PATH.unshift File.expand_path('../lib', __dir__)
-require 'runpod_gpu_availability/database'
+require 'runpod_gpu_availability/migrator'
+require 'runpod_gpu_availability/availability_repository'
 
 path = ARGV.fetch(0, File.expand_path('../tmp/preview.sqlite3', __dir__))
 abort "Refusing to overwrite existing preview database: #{path}" if File.exist?(path)
@@ -20,7 +20,8 @@ patterns = {
   'CA-MTL-1' => %w[UNKNOWN LOW UNKNOWN LOW LOW UNKNOWN LOW]
 }.freeze
 
-database = RunpodGpuAvailability::Database.new(path: path)
+RunpodGpuAvailability::Migrator.run(path:)
+repository = RunpodGpuAvailability::AvailabilityRepository.new(path:)
 start = Time.now.utc - (7 * 24 * 60 * 60)
 
 168.times do |offset|
@@ -39,8 +40,8 @@ start = Time.now.utc - (7 * 24 * 60 * 60)
       end
     }]
   }
-  database.record_snapshot!(captured_at: start + (offset * 3600), product: 'SERVERLESS', catalog: catalog)
+  repository.record_snapshot!(captured_at: start + (offset * 3600), product: 'SERVERLESS', catalog: catalog)
 end
 
-database.close
+repository.close
 puts path

@@ -1,0 +1,7 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require_relative '../lib/runpod_gpu_availability'
+
+config = RunpodGpuAvailability::Config.load(ENV)
+RunpodGpuAvailability::Migrator.run(path: config.database_path)
