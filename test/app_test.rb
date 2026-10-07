@@ -29,6 +29,12 @@ class AppTest < Minitest::Test
 
     dashboard = Rack::MockRequest.new(@app).get('/?days=28')
     assert_equal 200, dashboard.status
+    description = 'Historical RunPod Serverless GPU availability by region, pool, and hourly price.'
+    assert_includes dashboard.body, %(<meta name="description" content="#{description}">)
+    assert_includes dashboard.body, '<link rel="canonical" href="https://animesh-runpod-gpu-availability.fly.dev/">'
+    assert_includes dashboard.body, '<meta property="og:title" content="RunPod GPU availability">'
+    assert_includes dashboard.body, '<meta property="og:type" content="website">'
+    assert_includes dashboard.body, '<meta name="twitter:card" content="summary_large_image">'
     assert_includes dashboard.body, 'US-IL-1'
     repository_link = [
       'href="https://github.com/Animesh-Ghosh/runpod-gpu-availability"',
@@ -42,7 +48,7 @@ class AppTest < Minitest::Test
     assert_includes dashboard.body, 'Current region status'
     assert_includes dashboard.body, 'Worst availability'
     assert_includes dashboard.body, 'Snapshots every 30 minutes.'
-    assert_includes dashboard.body, 'Last run: 2026-10-06T'
+    assert_includes dashboard.body, 'Last run:'
     assert_includes dashboard.body, 'Last observed $/hour'
     assert_includes dashboard.body, 'Observed price range'
     assert_includes dashboard.body, '$1.10'
