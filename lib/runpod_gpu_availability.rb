@@ -1,4 +1,13 @@
 # frozen_string_literal: true
 
 require_relative 'runpod_gpu_availability/config'
+require_relative 'runpod_gpu_availability/migrator'
+require_relative 'runpod_gpu_availability/availability_repository'
+require_relative 'runpod_gpu_availability/catalog_client'
+require_relative 'runpod_gpu_availability/capture_snapshot'
+require_relative 'runpod_gpu_availability/snapshot_job'
+require_relative 'runpod_gpu_availability/web/rack_responses'
+require_relative 'runpod_gpu_availability/web/error_handler'
+require_relative 'runpod_gpu_availability/web/dashboard_endpoint'
+require_relative 'runpod_gpu_availability/web/health_endpoint'
 require_relative 'runpod_gpu_availability/app'

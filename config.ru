@@ -1,5 +1,5 @@
 # frozen_string_literal: true
 
-require_relative 'lib/runpod_gpu_availability/app'
+require_relative 'lib/runpod_gpu_availability'
 
-run RunpodGpuAvailability::App.build
+run RunpodGpuAvailability::App.new

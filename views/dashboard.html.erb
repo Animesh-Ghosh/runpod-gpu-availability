@@ -40,8 +40,9 @@
       <h1>RunPod GPU availability</h1>
       <a href="https://github.com/Animesh-Ghosh/runpod-gpu-availability" target="_blank" rel="noopener noreferrer">GitHub repository</a>
     </header>
-    <p class="<%= snapshot ? "muted" : "warning" %>"><%= h(status_message) %><% if last_error %> <span class="warning">Last fetch error: <%= h(last_error) %></span><% end %></p>
-    <p class="muted">Snapshots every <%= h(snapshot_cadence) %>.<% if snapshot %> · Last run: <%= h(captured_at) %><% end %></p>
+    <p class="<%= snapshot ? "muted" : "warning" %>"><%= h(status_message) %></p>
+    <p class="muted">Snapshots every 1 hour at UTC.<% if snapshot %> · Last successful snapshot: <%= h(captured_at) %>.<% end %></p>
+    <p class="<%= latest_capture_error ? "warning" : "muted" %>"><%= h(latest_capture_run_message) %><% if latest_capture_error %> <span class="warning"><%= h(latest_capture_error) %></span><% end %></p>
 
     <h2>History: last <%= days %> days</h2>
     <p><a href="/?days=7">7 days</a> · <a href="/?days=28">28 days</a> · <a href="/?days=90">90 days</a></p>

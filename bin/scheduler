@@ -1,0 +1,14 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require 'rufus-scheduler'
+
+require_relative '../lib/runpod_gpu_availability'
+
+config = RunpodGpuAvailability::Config.load(ENV)
+scheduler = Rufus::Scheduler.new
+scheduler.cron('0 * * * * UTC', overlap: false) do
+  RunpodGpuAvailability::SnapshotJob.call(config:)
+end
+%w[INT TERM].each { |signal| trap(signal) { scheduler.shutdown } }
+scheduler.join

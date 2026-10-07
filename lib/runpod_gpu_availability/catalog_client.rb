@@ -2,6 +2,7 @@
 
 require 'json'
 require 'net/http'
+require 'openssl'
 require 'uri'
 
 module RunpodGpuAvailability
@@ -11,13 +12,45 @@ module RunpodGpuAvailability
 
     class Error < StandardError; end
 
+    class MissingApiKeyError < Error; end
+
+    class RequestError < Error
+      def initialize(error)
+        super("RunPod catalog request failed: #{error.message}")
+      end
+    end
+
+    class ResponseError < Error
+      attr_reader :status
+
+      def initialize(status:, body:)
+        @status = status
+        super("RunPod catalog request failed (HTTP #{status}): #{body}")
+      end
+    end
+
+    class InvalidPayloadError < Error
+      def initialize(error)
+        super("RunPod catalog response was not valid JSON: #{error.message}")
+      end
+    end
+
     def initialize(api_key:)
       @api_key = api_key
     end
 
     def fetch
-      raise Error, 'RUNPOD_API_KEY is required' if @api_key.nil? || @api_key.empty?
+      validate_api_key!
+      parse(response_body)
+    end
 
+    private
+
+    def validate_api_key!
+      raise MissingApiKeyError, 'RUNPOD_API_KEY is required' if @api_key.nil? || @api_key.empty?
+    end
+
+    def response_body
       uri = URI(API_URL)
       uri.query = URI.encode_www_form(include: 'AVAILABILITY', product: PRODUCT)
       request = Net::HTTP::Get.new(uri)
@@ -28,13 +61,22 @@ module RunpodGpuAvailability
         connection.request(request)
       end
 
-      unless response.is_a?(Net::HTTPSuccess)
-        raise Error, "RunPod catalog request failed (HTTP #{response.code}): #{response.body}"
-      end
+      validate_response!(response)
+      response.body
+    rescue Net::OpenTimeout, Net::ReadTimeout, OpenSSL::SSL::SSLError, SocketError, SystemCallError, EOFError => e
+      raise RequestError, e
+    end
 
-      JSON.parse(response.body)
+    def validate_response!(response)
+      return if response.is_a?(Net::HTTPSuccess)
+
+      raise ResponseError.new(status: Integer(response.code, 10), body: response.body)
+    end
+
+    def parse(body)
+      JSON.parse(body)
     rescue JSON::ParserError => e
-      raise Error, "RunPod catalog response was not valid JSON: #{e.message}"
+      raise InvalidPayloadError, e
     end
   end
 end

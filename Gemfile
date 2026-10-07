@@ -2,10 +2,12 @@
 
 source 'https://rubygems.org'
 
+gem 'foreman', '~> 0.87'
 gem 'logger', '~> 1.7'
 gem 'puma', '~> 6.0'
 gem 'rack', '~> 3.0'
 gem 'rufus-scheduler', '~> 3.9'
+gem 'sequel', '~> 5.0'
 gem 'sqlite3', '~> 2.0'
 
 group :test do

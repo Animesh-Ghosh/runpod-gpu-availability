@@ -18,23 +18,18 @@ region, GPU, serverless pool, VRAM, availability level, and serverless list
 price. Availability is product-specific: Pod stock is not substituted for
 Serverless stock.
 
-The dashboard deliberately uses **one always-running Fly Machine with one SQLite
-volume**. Rufus Scheduler captures a snapshot shortly after boot and then every
-hour. This avoids relying on GitHub Actions cron, while keeping one SQLite writer.
-Do not scale this app horizontally without moving the SQLite design first.
-
-Set `SNAPSHOT_INTERVAL_SECONDS` to change the cadence; it defaults to `3600` and the homepage displays the active interval and the latest successful run.
-
 ## Local run
 
 ```sh
 bundle install
-RUNPOD_API_KEY=... SNAPSHOT_INTERVAL_SECONDS=60 bundle exec puma -b tcp://127.0.0.1:8080 config.ru
+DATABASE_PATH=tmp/availability.sqlite3 bundle exec ruby bin/migrate
+RUNPOD_API_KEY=... DATABASE_PATH=tmp/availability.sqlite3 PORT=8080 bundle exec foreman start
 open http://127.0.0.1:8080
 ```
 
-`RUNPOD_API_KEY` needs read access to the RunPod REST v2 catalog. The first
-snapshot is captured shortly after boot; later snapshots default to every hour.
+`RUNPOD_API_KEY` needs read access to the RunPod REST v2 catalog. Foreman reads
+the checked-in Procfile; the scheduler's sole job runs at the next UTC hour, so
+there is deliberately no immediate capture at boot.
 
 ## Fly.io deployment
 
@@ -47,10 +42,12 @@ fly secrets set RUNPOD_API_KEY=...
 fly deploy
 ```
 
-The Fly Machine intentionally stays running: its in-process scheduler cannot
-collect while stopped. SQLite data lives only on the `availability_data` volume.
+The Fly Machine intentionally stays running: its scheduler process cannot collect
+while stopped. SQLite data lives only on the `availability_data` volume.
 For this low-cost decision tool, deleting that volume deletes the history; no
-separate backup workflow is configured.
+separate backup workflow is configured. Each Machine boot migrates that mounted
+database before starting either application process. Capture-run diagnostics are
+retained for 30 days.
 
 ## Verification
 

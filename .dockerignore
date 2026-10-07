@@ -8,7 +8,6 @@ tmp
 vendor
 README.md
 Rakefile
-bin
 .rubocop.yml
 .tool-versions
 fly.toml
