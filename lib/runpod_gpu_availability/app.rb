@@ -7,15 +7,16 @@ module RunpodGpuAvailability
     def initialize
       config = Config.load(ENV)
       repository = AvailabilityRepository.new(path: config.database_path)
-      @rack_app = Rack::Builder.new do
+      routes = Rack::Builder.new do
         map '/healthz' do
-          run HealthEndpoint.new(repository:)
+          run Web::HealthEndpoint.new(repository:)
         end
 
         map '/' do
-          run DashboardEndpoint.new(repository:)
+          run Web::DashboardEndpoint.new(repository:)
         end
       end.to_app
+      @rack_app = Web::ErrorHandler.new(app: routes)
     end
 
     def call(environment) = @rack_app.call(environment)

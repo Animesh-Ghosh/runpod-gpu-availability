@@ -27,12 +27,6 @@ class AppTest < Minitest::Test
 
     dashboard = Rack::MockRequest.new(@app).get('/?days=28')
     assert_equal 200, dashboard.status
-    description = 'Historical RunPod Serverless GPU availability by region, pool, and hourly price.'
-    assert_includes dashboard.body, %(<meta name="description" content="#{description}">)
-    assert_includes dashboard.body, '<link rel="canonical" href="https://animesh-runpod-gpu-availability.fly.dev/">'
-    assert_includes dashboard.body, '<meta property="og:title" content="RunPod GPU availability">'
-    assert_includes dashboard.body, '<meta property="og:type" content="website">'
-    assert_includes dashboard.body, '<meta name="twitter:card" content="summary_large_image">'
     assert_includes dashboard.body, 'US-IL-1'
     repository_link = [
       'href="https://github.com/Animesh-Ghosh/runpod-gpu-availability"',
@@ -74,9 +68,28 @@ class AppTest < Minitest::Test
     refute high.fetch('regions').first.key?('region_name')
   end
 
+  def test_exposes_social_preview_metadata
+    @capture_snapshot.call
+
+    dashboard = Rack::MockRequest.new(@app).get('/')
+    description = 'Historical RunPod Serverless GPU availability by region, pool, and hourly price.'
+
+    assert_includes dashboard.body, %(<meta name="description" content="#{description}">)
+    assert_includes dashboard.body, '<link rel="canonical" href="https://animesh-runpod-gpu-availability.fly.dev/">'
+    assert_includes dashboard.body, '<meta property="og:title" content="RunPod GPU availability">'
+    assert_includes dashboard.body, '<meta property="og:type" content="website">'
+    assert_includes dashboard.body, '<meta name="twitter:card" content="summary_large_image">'
+  end
+
   def test_exposes_only_canonical_dashboard_routes
-    assert_equal 404, Rack::MockRequest.new(@app).get('/.json').status
-    assert_equal 404, Rack::MockRequest.new(@app).get('/index.json').status
+    dashboard = Rack::MockRequest.new(@app).get('/.json')
+    health = Rack::MockRequest.new(@app).post('/healthz')
+
+    [dashboard, health].each do |response|
+      assert_equal 404, response.status
+      assert_equal 'text/plain', response['content-type']
+      assert_equal "Not found\n", response.body
+    end
   end
 
   def test_reads_the_latest_failed_capture_from_sqlite
