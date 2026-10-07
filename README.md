@@ -23,12 +23,13 @@ Serverless stock.
 ```sh
 bundle install
 DATABASE_PATH=tmp/availability.sqlite3 bundle exec ruby bin/migrate
-RUNPOD_API_KEY=... DATABASE_PATH=tmp/availability.sqlite3 PORT=8080 bundle exec foreman start
+RUNPOD_API_KEY=... DATABASE_PATH=tmp/availability.sqlite3 bundle exec mothership --config ship-manifest.toml
 open http://127.0.0.1:8080
 ```
 
-`RUNPOD_API_KEY` needs read access to the RunPod REST v2 catalog. Foreman reads
-the checked-in Procfile; the scheduler's sole job runs at the next UTC hour, so
+`RUNPOD_API_KEY` needs read access to the RunPod REST v2 catalog. Mothership
+reads the checked-in ship manifest, exposes the web process on port 8080, and
+supervises the scheduler. The scheduler's sole job runs at the next UTC hour, so
 there is deliberately no immediate capture at boot.
 
 ## Fly.io deployment

@@ -24,7 +24,7 @@ jobs:
               - '.dockerignore'
               - 'Gemfile'
               - 'Gemfile.lock'
-              - 'Procfile'
+              - 'ship-manifest.toml'
               - 'config.ru'
               - 'bin/**'
               - 'db/**'

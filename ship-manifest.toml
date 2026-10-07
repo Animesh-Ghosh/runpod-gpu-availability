@@ -1,0 +1,22 @@
+[mothership]
+metrics_port = 9090
+
+[mothership.bind]
+http = "0.0.0.0:8080"
+
+[[fleet.web]]
+name = "web"
+command = "bundle"
+args = ["exec", "puma", "--bind", "tcp://127.0.0.1:3000", "config.ru"]
+bind = "tcp://127.0.0.1:3000"
+healthcheck = "/healthz"
+healthcheck_initial_delay = 5
+tags = ["web"]
+routes = [{ bind = "http", pattern = "/.*" }]
+
+[[fleet.workers]]
+name = "scheduler"
+command = "bundle"
+args = ["exec", "ruby", "bin/scheduler"]
+critical = true
+tags = ["scheduler"]
