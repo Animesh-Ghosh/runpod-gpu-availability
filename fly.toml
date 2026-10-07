@@ -5,8 +5,7 @@ primary_region = "sin"
   dockerfile = "Dockerfile"
 
 [env]
-  DATABASE_PATH = "/data/availability.sqlite3"
-  SNAPSHOT_INTERVAL_SECONDS = "3600"
+DATABASE_PATH = "/data/availability.sqlite3"
 
 [http_service]
   internal_port = 8080

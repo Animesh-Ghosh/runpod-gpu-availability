@@ -2,6 +2,7 @@
 
 source 'https://rubygems.org'
 
+gem 'foreman', '~> 0.87'
 gem 'logger', '~> 1.7'
 gem 'puma', '~> 6.0'
 gem 'rack', '~> 3.0'

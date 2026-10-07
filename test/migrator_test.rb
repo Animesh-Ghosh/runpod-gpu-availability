@@ -32,7 +32,9 @@ class MigratorTest < Minitest::Test
 
       database = SQLite3::Database.new(path)
       assert_equal 1, database.get_first_value('SELECT COUNT(*) FROM snapshots')
-      assert_equal 2, database.get_first_value('SELECT version FROM schema_migrations')
+      assert_equal 3, database.get_first_value('SELECT version FROM schema_migrations')
+      columns = database.table_info('capture_runs').map { |column| column.fetch('name') }
+      assert_equal %w[id product started_at finished_at status error_message snapshot_id], columns
     ensure
       database&.close
     end

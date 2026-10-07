@@ -5,14 +5,15 @@ require 'rack'
 
 module RunpodGpuAvailability
   class HealthEndpoint
-    def initialize(runner:)
-      @runner = runner
+    def initialize(repository:)
+      @repository = repository
     end
 
     def call(environment)
       return not_found unless Rack::Request.new(environment).get?
 
-      [200, { 'content-type' => 'application/json' }, [JSON.generate(ok: true, last_error: @runner.last_error)]]
+      latest_capture_run = @repository.latest_capture_run(product: CatalogClient::PRODUCT)
+      [200, { 'content-type' => 'application/json' }, [JSON.generate(ok: true, latest_capture_run:)]]
     end
 
     private

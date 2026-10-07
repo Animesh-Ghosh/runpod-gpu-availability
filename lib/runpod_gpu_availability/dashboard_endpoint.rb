@@ -10,11 +10,9 @@ module RunpodGpuAvailability
     DASHBOARD_PATHS = ['/', '/dashboard.json'].freeze
     AVAILABILITY_GROUPS = %w[HIGH MEDIUM LOW UNKNOWN].freeze
 
-    def initialize(database:, runner:, product:, snapshot_cadence:)
-      @database = database
-      @runner = runner
-      @product = product
-      @snapshot_cadence = snapshot_cadence
+    def initialize(repository:)
+      @repository = repository
+      @product = CatalogClient::PRODUCT
     end
 
     def call(environment)
@@ -24,7 +22,7 @@ module RunpodGpuAvailability
       data = dashboard_data(days: requested_days(request))
       return json(json_data(data)) if json_request?(request)
 
-      body = Dashboard.new(**html_data(data), snapshot_cadence: @snapshot_cadence).render
+      body = Dashboard.new(**html_data(data)).render
       [200, { 'content-type' => 'text/html; charset=utf-8' }, [body]]
     end
 
@@ -36,25 +34,25 @@ module RunpodGpuAvailability
 
     def dashboard_data(days:)
       since = Time.now - (days * 24 * 60 * 60)
-      snapshot, current = @database.current_availabilities(product: @product)
-      summaries = @database.region_availability_summaries(product: @product, since:)
+      snapshot, current = @repository.current_availabilities(product: @product)
+      summaries = @repository.region_availability_summaries(product: @product, since:)
       {
         product: @product,
         snapshot: clean_row(snapshot),
         current: current.map { |row| clean_row(row) },
         current_regions: current_regions(since:, configurations: current),
-        history: @database.history(product: @product, since: since).map { |row| clean_row(row) },
-        region_statuses: @database.region_statuses(product: @product, since: since).map { |row| clean_row(row) },
+        history: @repository.history(product: @product, since: since).map { |row| clean_row(row) },
+        region_statuses: @repository.region_statuses(product: @product, since: since).map { |row| clean_row(row) },
         region_availability_summaries: summaries.map { |row| clean_row(row) },
-        snapshot_count: @database.snapshot_count(product: @product),
-        last_error: @runner.last_error,
+        snapshot_count: @repository.snapshot_count(product: @product),
+        latest_capture_run: clean_row(@repository.latest_capture_run(product: @product)),
         days:
       }
     end
 
     def current_regions(since:, configurations:)
       price_ranges = observed_price_ranges(since:)
-      @database.current_region_statuses(product: @product).map do |row|
+      @repository.current_region_statuses(product: @product).map do |row|
         region = clean_row(row)
         region_id = region.fetch('region_id')
         region.merge(
@@ -67,7 +65,7 @@ module RunpodGpuAvailability
     end
 
     def observed_price_ranges(since:)
-      @database.region_price_ranges(product: @product, since:).to_h do |price_range|
+      @repository.region_price_ranges(product: @product, since:).to_h do |price_range|
         [price_range.fetch('region_id'), clean_row(price_range)]
       end
     end
@@ -91,7 +89,7 @@ module RunpodGpuAvailability
     end
 
     def html_data(data)
-      data.slice(:snapshot, :current_regions, :snapshot_count, :last_error, :days).merge(
+      data.slice(:snapshot, :current_regions, :snapshot_count, :latest_capture_run, :days).merge(
         historical: data.slice(:region_statuses, :region_availability_summaries)
       )
     end

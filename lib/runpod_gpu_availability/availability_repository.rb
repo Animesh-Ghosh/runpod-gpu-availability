@@ -10,11 +10,43 @@ module RunpodGpuAvailability
     end
 
     def record_snapshot!(captured_at:, product:, catalog:)
+      @database.transaction { insert_snapshot!(captured_at:, product:, catalog:) }
+    end
+
+    def start_capture!(product:, started_at:)
+      capture_runs.insert(product:, started_at: started_at.utc.iso8601, status: 'running')
+    end
+
+    def complete_capture!(run_id:, captured_at:, product:, catalog:, finished_at:)
       @database.transaction do
-        snapshot_id = snapshots.insert(captured_at: captured_at.utc.iso8601, product:)
-        availabilities.multi_insert(availability_rows(snapshot_id:, catalog:))
+        snapshot_id = insert_snapshot!(captured_at:, product:, catalog:)
+        capture_runs.where(id: run_id, status: 'running').update(
+          status: 'succeeded', snapshot_id:, finished_at: finished_at.utc.iso8601
+        )
         snapshot_id
       end
+    end
+
+    def fail_capture!(run_id:, error_message:, finished_at:)
+      capture_runs.where(id: run_id, status: 'running').update(
+        status: 'failed', error_message:, finished_at: finished_at.utc.iso8601
+      )
+    end
+
+    def fail_abandoned_captures!(finished_at:)
+      capture_runs.where(status: 'running').update(
+        status: 'failed',
+        error_message: 'collector exited before completing this capture',
+        finished_at: finished_at.utc.iso8601
+      )
+    end
+
+    def prune_capture_runs!(before:)
+      capture_runs.exclude(status: 'running').where { finished_at < before.utc.iso8601 }.delete
+    end
+
+    def latest_capture_run(product:)
+      row(capture_runs.where(product:).order(Sequel.desc(:started_at)).first)
     end
 
     def latest_snapshot(product:)
@@ -83,6 +115,14 @@ module RunpodGpuAvailability
     def snapshots = @database[:snapshots]
 
     def availabilities = @database[:gpu_availabilities]
+
+    def capture_runs = @database[:capture_runs]
+
+    def insert_snapshot!(captured_at:, product:, catalog:)
+      snapshot_id = snapshots.insert(captured_at: captured_at.utc.iso8601, product:)
+      availabilities.multi_insert(availability_rows(snapshot_id:, catalog:))
+      snapshot_id
+    end
 
     def availability_rows(snapshot_id:, catalog:)
       catalog.fetch('gpus').flat_map do |gpu|

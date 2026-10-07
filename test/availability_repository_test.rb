@@ -3,6 +3,28 @@
 require_relative 'test_helper'
 
 class AvailabilityRepositoryTest < Minitest::Test
+  def test_recovers_abandoned_runs_and_prunes_old_terminal_runs
+    Dir.mktmpdir do |directory|
+      path = File.join(directory, 'availability.sqlite3')
+      RunpodGpuAvailability::Migrator.run(path:)
+      repository = RunpodGpuAvailability::AvailabilityRepository.new(path:)
+      now = Time.utc(2026, 10, 7, 12)
+      old_run = repository.start_capture!(product: 'SERVERLESS', started_at: now - (31 * 24 * 60 * 60))
+      active_run = repository.start_capture!(product: 'SERVERLESS', started_at: now)
+
+      repository.fail_capture!(run_id: old_run, error_message: 'old failure', finished_at: now - (31 * 24 * 60 * 60))
+      repository.fail_abandoned_captures!(finished_at: now)
+      repository.prune_capture_runs!(before: now - (30 * 24 * 60 * 60))
+
+      latest_run = repository.latest_capture_run(product: 'SERVERLESS')
+      assert_equal active_run, latest_run.fetch('id')
+      assert_equal 'failed', latest_run.fetch('status')
+      assert_equal 'collector exited before completing this capture', latest_run.fetch('error_message')
+    ensure
+      repository&.close
+    end
+  end
+
   def test_records_current_and_historical_serverless_availability
     Dir.mktmpdir do |directory|
       path = File.join(directory, 'availability.sqlite3')

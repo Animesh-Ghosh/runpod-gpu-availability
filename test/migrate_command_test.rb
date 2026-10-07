@@ -13,7 +13,7 @@ class MigrateCommandTest < Minitest::Test
 
       assert_predicate status, :success?
       database = SQLite3::Database.new(path)
-      assert_equal 2, database.get_first_value('SELECT version FROM schema_migrations')
+      assert_equal 3, database.get_first_value('SELECT version FROM schema_migrations')
     ensure
       database&.close
     end

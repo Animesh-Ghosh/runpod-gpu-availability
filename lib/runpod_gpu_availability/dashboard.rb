@@ -10,15 +10,14 @@ module RunpodGpuAvailability
   class Dashboard
     TEMPLATE_PATH = File.expand_path('../../views/dashboard.html.erb', __dir__)
 
-    def initialize(snapshot:, current_regions:, historical:, snapshot_count:, last_error:, days:, snapshot_cadence:)
+    def initialize(snapshot:, current_regions:, historical:, snapshot_count:, latest_capture_run:, days:)
       @snapshot = snapshot
       @current_regions = current_regions
       @region_statuses = historical.fetch(:region_statuses)
       @region_availability_summaries = historical.fetch(:region_availability_summaries)
       @snapshot_count = snapshot_count
-      @last_error = last_error
+      @latest_capture_run = latest_capture_run
       @days = days
-      @snapshot_cadence = snapshot_cadence
     end
 
     def render = ERB.new(File.read(TEMPLATE_PATH), trim_mode: '-').result(binding)
@@ -26,11 +25,24 @@ module RunpodGpuAvailability
     private
 
     attr_reader :snapshot, :current_regions, :region_statuses, :region_availability_summaries, :snapshot_count,
-                :last_error, :days, :snapshot_cadence
+                :latest_capture_run, :days
 
     def captured_at
       Time.parse(snapshot.fetch('captured_at')).utc.iso8601
     end
+
+    def latest_capture_run_at
+      timestamp = latest_capture_run.fetch('finished_at') || latest_capture_run.fetch('started_at')
+      Time.parse(timestamp).utc.iso8601
+    end
+
+    def latest_capture_run_message
+      return 'No collector run recorded yet.' unless latest_capture_run
+
+      "Latest collector run: #{latest_capture_run.fetch('status')} at #{latest_capture_run_at}."
+    end
+
+    def latest_capture_error = latest_capture_run&.fetch('error_message')
 
     def status_message
       return 'No successful snapshot yet.' unless snapshot
