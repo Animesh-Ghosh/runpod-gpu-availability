@@ -9,24 +9,19 @@ GEM
     fugit (1.14.0)
       et-orbi (~> 1.4)
       raabro (~> 1.4)
-    guardship (0.0.107)
-    guardship (0.0.107-aarch64-linux)
-    guardship (0.0.107-arm64-darwin)
-    guardship (0.0.107-x86_64-darwin)
-    guardship (0.0.107-x86_64-linux)
+    guardship (0.1.0-arm64-darwin)
+    guardship (0.1.0-x86_64-darwin)
+    guardship (0.1.0-x86_64-linux)
     json (3.0.2)
     language_server-protocol (3.17.0.6)
     lint_roller (1.1.0)
     logger (1.7.0)
     minitest (5.27.0)
-    nio4r (2.7.5)
     parallel (2.3.0)
     parser (3.3.12.0)
       ast (~> 2.4.1)
       racc
     prism (1.9.0)
-    puma (6.6.1)
-      nio4r (~> 2.0)
     raabro (1.5.0)
     racc (1.8.1)
     rack (3.2.7)
@@ -52,16 +47,15 @@ GEM
       fugit (~> 1.1, >= 1.11.1)
     sequel (5.109.0)
       bigdecimal
-    sqlite3 (2.9.6-aarch64-linux-gnu)
-    sqlite3 (2.9.6-aarch64-linux-musl)
-    sqlite3 (2.9.6-arm-linux-gnu)
-    sqlite3 (2.9.6-arm-linux-musl)
+    shuttlebay (0.1.4-arm64-darwin)
+      rack (>= 3.0)
+    shuttlebay (0.1.4-x86_64-darwin)
+      rack (>= 3.0)
+    shuttlebay (0.1.4-x86_64-linux)
+      rack (>= 3.0)
     sqlite3 (2.9.6-arm64-darwin)
-    sqlite3 (2.9.6-x86-linux-gnu)
-    sqlite3 (2.9.6-x86-linux-musl)
     sqlite3 (2.9.6-x86_64-darwin)
     sqlite3 (2.9.6-x86_64-linux-gnu)
-    sqlite3 (2.9.6-x86_64-linux-musl)
     tzinfo (2.0.6)
       concurrent-ruby (~> 1.0)
     unicode-display_width (3.3.0)
@@ -69,27 +63,21 @@ GEM
     unicode-emoji (4.3.0)
 
 PLATFORMS
-  aarch64-linux-gnu
-  aarch64-linux-musl
-  arm-linux-gnu
-  arm-linux-musl
   arm64-darwin
-  x86-linux-gnu
-  x86-linux-musl
+  arm64-darwin-25
   x86_64-darwin
   x86_64-linux-gnu
-  x86_64-linux-musl
 
 DEPENDENCIES
-  guardship (~> 0.0.107)
+  guardship (~> 0.1.0)
   logger (~> 1.7)
   minitest (~> 5.0)
-  puma (~> 6.0)
   rack (~> 3.0)
   rake (~> 13.0)
   rubocop (~> 1.80)
   rufus-scheduler (~> 3.9)
   sequel (~> 5.0)
+  shuttlebay (~> 0.1.4)
   sqlite3 (~> 2.0)
 
 CHECKSUMS
@@ -98,21 +86,17 @@ CHECKSUMS
   concurrent-ruby (1.3.8) sha256=b2f1be836e968ccc78ccfce277ea79c72a88633f22306782c16ff23fb415d1e1
   et-orbi (1.4.2) sha256=bb555dae668419cb24caa2a293a170e58be6d4df1e017c51f5030bdc133cd20c
   fugit (1.14.0) sha256=e311a9cc85a54bb67649df45060e721282a1e2c8ebad40e41874a3a7d576f37e
-  guardship (0.0.107) sha256=f9ee6d0cc6f02314e071f5ebf385ab95e8f835e7622e699e713e1cd4d2531342
-  guardship (0.0.107-aarch64-linux) sha256=4679eeeff0e21b64053d8b498222884fd8f471e78ecd3c562cfa8881e770e0a6
-  guardship (0.0.107-arm64-darwin) sha256=a735ee267e95257d9ca6751c4eed3f21f479eb27a1182b9e1b202898b3b74331
-  guardship (0.0.107-x86_64-darwin) sha256=26ca225f27f462348a08942b5f0e1c2df3c9df3522ebda48521d46a56a2500b7
-  guardship (0.0.107-x86_64-linux) sha256=0f7d9cbec3ebddfe84a70293fd161441929d17abbb8a7da4e4d90ee74cdc6e7d
+  guardship (0.1.0-arm64-darwin) sha256=078a9cb65b3c66186d09b95c7719f00e6e8f3b0bb0dad498d5ba94022481f402
+  guardship (0.1.0-x86_64-darwin) sha256=c2276fa79e1a5670010870c109c16b55826f82d2fe6d4c5b6378837418f564cf
+  guardship (0.1.0-x86_64-linux) sha256=4e9194445155cdf8ed0c5c2b9bff7ab046874d83440fdfdbdea088bef6cb6874
   json (3.0.2) sha256=8e6d7e7b11384c21230430cef90b71f14849a34a1f4452796670f7c981bd19df
   language_server-protocol (3.17.0.6) sha256=5ef2c0c138f8267e1bc631d3328347d354f96724b0af22f2c79516120443b7f0
   lint_roller (1.1.0) sha256=2c0c845b632a7d172cb849cc90c1bce937a28c5c8ccccb50dfd46a485003cc87
   logger (1.7.0) sha256=196edec7cc44b66cfb40f9755ce11b392f21f7967696af15d274dde7edff0203
   minitest (5.27.0) sha256=2d3b17f8a36fe7801c1adcffdbc38233b938eb0b4966e97a6739055a45fa77d5
-  nio4r (2.7.5) sha256=6c90168e48fb5f8e768419c93abb94ba2b892a1d0602cb06eef16d8b7df1dca1
   parallel (2.3.0) sha256=f75a3e904101ce6a1ccb6b8dc800cbafd42166d83330192438dcf29395167a6f
   parser (3.3.12.0) sha256=21a6d7f755d5a24dfbdc6e6b772e4e879a52e7631a88bc5a3a134606052c9828
   prism (1.9.0) sha256=7b530c6a9f92c24300014919c9dcbc055bf4cdf51ec30aed099b06cd6674ef85
-  puma (6.6.1) sha256=b9b56e4a4ea75d1bfa6d9e1972ee2c9f43d0883f011826d914e8e37b3694ea1e
   raabro (1.5.0) sha256=3f998a7bc84f9c84df3ab580634d2e0a5bda4f0841168d56035f529c9877440a
   racc (1.8.1) sha256=4a7f6929691dbec8b5209a0b373bc2614882b55fc5d2e447a21aaa691303d62f
   rack (3.2.7) sha256=93e13e1c24f93556671d85d2d79fa228c3485815c50d7e2f265b5330c6528fb7
@@ -124,16 +108,12 @@ CHECKSUMS
   ruby-progressbar (1.13.0) sha256=80fc9c47a9b640d6834e0dc7b3c94c9df37f08cb072b7761e4a71e22cff29b33
   rufus-scheduler (3.9.2) sha256=55fa9e4db0ff69d7f38c804f17baba0c9bce5cba39984ae3c5cf6c039d1323b9
   sequel (5.109.0) sha256=e0d1d474442d620c8497d7f4851c0cc3a277920519051b8014b2877aa55efffe
-  sqlite3 (2.9.6-aarch64-linux-gnu) sha256=d8b1f7d23efd7abac285775a9566562fc7debfef79d594e3a20354406fb7907c
-  sqlite3 (2.9.6-aarch64-linux-musl) sha256=3579e1c98cdc7ff5c3722847bb63ed4e1efb7ff675cb5e1e48ef2d4da5fb3bc9
-  sqlite3 (2.9.6-arm-linux-gnu) sha256=33541500e3615da02afe54a9cc38b17a6985d3cf9d8b76d6d0a83002f114e7ec
-  sqlite3 (2.9.6-arm-linux-musl) sha256=c5490af48bb228fefa54314e9541375c3907e70f8109f3881b5ff97e1c93ae33
+  shuttlebay (0.1.4-arm64-darwin) sha256=cf727f645272c014d3931f5064a3ad5e1c200a925851cd5b9fe384c11eb8c67c
+  shuttlebay (0.1.4-x86_64-darwin) sha256=03a9a6e831545e2dd768f0b11903aa01351a6830a0ca0b76dbab488739e9fe76
+  shuttlebay (0.1.4-x86_64-linux) sha256=5b698124b7c17db2cd29773ff9adb2f0896d97082a3ce2a191936b2c5a82f265
   sqlite3 (2.9.6-arm64-darwin) sha256=849b5d7f795e60fe25076d62c72dd722beb45b3850b516ad978d60ee848ec15b
-  sqlite3 (2.9.6-x86-linux-gnu) sha256=fbaa9f46f9708f57dd8a459b37fc269f9613e0cacf1547df01aa439cc45c20c0
-  sqlite3 (2.9.6-x86-linux-musl) sha256=6715026fbb5530e810b28ef43b9c4f84cd3c991f67b9d808a31fcc32b847abbd
   sqlite3 (2.9.6-x86_64-darwin) sha256=b5842fea77781c14da03fa7bc0feb82db03a69e135affcb6f5399cbd2797a5f3
   sqlite3 (2.9.6-x86_64-linux-gnu) sha256=613188ce02f614126ddbc38c5e217ccffd6306d0dcd9adca9764547aa890a634
-  sqlite3 (2.9.6-x86_64-linux-musl) sha256=d493b11818a3573387a1d56e1ee8fa00da23a683a7a1cc063e7a0feeed843abf
   tzinfo (2.0.6) sha256=8daf828cc77bcf7d63b0e3bdb6caa47e2272dcfaf4fbfe46f8c3a9df087a829b
   unicode-display_width (3.3.0) sha256=4b7aa66a4b11db50f6f7e98411215cd0dd10eaecb665d36eec5bcacb3fa0b613
   unicode-emoji (4.3.0) sha256=11c02fa73290378c066bb0562cd4c87d8e1b706fbbe0059ca12746a4244de8ce

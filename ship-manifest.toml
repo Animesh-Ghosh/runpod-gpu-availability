@@ -4,14 +4,12 @@ metrics_port = 9090
 [mothership.bind]
 http = "0.0.0.0:8080"
 
-[[fleet.web]]
+[[bays.http]]
 name = "web"
 command = "bundle"
-args = ["exec", "puma", "--bind", "tcp://127.0.0.1:3000", "config.ru"]
-bind = "tcp://127.0.0.1:3000"
-healthcheck = "/healthz"
-healthcheck_initial_delay = 5
-tags = ["web"]
+args = ["exec", "shuttlebay", "config.ru"]
+workers = 0
+threads = 5
 routes = [{ bind = "http", pattern = "/.*" }]
 
 [[fleet.workers]]
